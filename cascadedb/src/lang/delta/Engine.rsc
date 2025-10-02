@@ -1,11 +1,14 @@
 module lang::delta::Engine
 
+import IO;
+import String;
+
 import lang::delta::Effect;
+import lang::delta::Language;
+import lang::delta::Operation;
 import lang::delta::Object;
 import lang::delta::Patcher;
 import lang::delta::Inverter;
-import String;
-import IO;
 
 public tuple[Heap heap, list[Event] past] run(map[str, Language] languages, Heap heap, str script) {
   list[str] commands = split("\n", script);
@@ -32,6 +35,8 @@ public tuple[Heap heap, Event evt] schedule(map[str, Language] languages, Heap h
   Language lang = languages[evt.language.name];
 
   //2. pre-migrate the event
+
+  //evt.state = preMigrating();  
   <heap, evt> = lang.preMigrate(heap, evt);
   list[Event] preEvents = [];
   for(Event preEvt <- evt.pre) {
@@ -41,12 +46,20 @@ public tuple[Heap heap, Event evt] schedule(map[str, Language] languages, Heap h
   evt.pre = preEvents;
 
   //3. Generate edit operations
+  //evt.state = generating();
   <heap, evt> = lang.generate(heap, evt);
  
   //4. Commit the edit operations
-  heap = commit(heap, evt);
+  //evt.state = committing();
+  list[Operation] ops = [];
+  for(Operation op <- evt.operations){
+    heap = commit(heap, op);
+    ops = ops + op;
+  }
+  evt.operations = ops;
 
   //5. Post-migrate the event
+  //evt.state = postMigrating();
   <heap, evt> = lang.postMigrate(heap, evt);
   list[Event] postEvents = [];
   for(Event postEvt <- evt.post) {
@@ -55,64 +68,23 @@ public tuple[Heap heap, Event evt] schedule(map[str, Language] languages, Heap h
   }
   evt.post = postEvents;
 
+  //evt.state = completed();
+  evt = label(evt);
   return <heap, evt>;
 }
 
-public tuple[Heap heap, list[Event] past, list[Event] future] undo(Heap heap, list[Event] past, list[Event] future) {
-  if([*newPast, evt] := past) {
-    println("Undo command \"<evt.language.name>.<evt.command.name>\"");
-    Event iEvent = invertEvent(evt);
-    heap = rollback(heap, iEvent);
-    past = newPast;
-    future = [evt] + future;
+//Add program counters for debugging
+private Event label(Event evt) {
+  int label = 0;
+  evt = top-down visit(evt) {
+    case Operation op => {
+      label = label + 1;
+      op[pc = label];
+    }
+    case Event evt => {
+      label = label + 1;
+      evt[pc = label];
+    }
   }
-  return <heap, past, future>;
-}
-
-public tuple[Heap heap, list[Event] past, list[Event] future] undo(Heap heap, list[Event] past, list[Event] future, int steps) {
-  for(int step <- [0..steps]) {
-    if(past==[]){ break; }
-    <heap, past, future> = undo(heap, past, future);
-  }
-  return <heap, past, future>;
-}
-
-public tuple[Heap heap, list[Event] past, list[Event] future] redo(Heap heap, list[Event] past, list[Event] future) {
-  if([evt, *newFuture] := future) {
-    println("Redo command \"<evt.language.name>.<evt.command.name>\"");
-    heap = recommit(heap, evt);
-    past = past + [evt];
-    future = newFuture;
-  }
-  return <heap, past, future>;
-}
-
-public tuple[Heap heap, list[Event] past, list[Event] future] redo(Heap heap, list[Event] past, list[Event] future, int steps) {
-  for(int step <- [0..steps]) {
-    if(future==[]){ break; }
-    <heap, past, future> = redo(heap, past, future);
-  }
-  return <heap, past, future>;
-}
-
-private Heap rollback(Heap heap, Event evt) {
-  for(Event postEvt <- evt.post) {
-    heap = rollback(heap, postEvt);
-  }
-  heap = commit(heap, evt);
-  for(Event preEvt <- evt.pre) {
-    heap = rollback(heap, preEvt);
-  }
-  return heap;
-}
-
-private Heap recommit(Heap heap, Event evt) {
-  for(Event preEvt <- evt.pre) {
-    heap = recommit(heap, preEvt);
-  }
-  heap = commit(heap, evt);
-  for(Event postEvt <- evt.post) {
-    heap = recommit(heap, postEvt);
-  }
-  return heap;
+  return evt;
 }
