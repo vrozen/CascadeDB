@@ -17,15 +17,24 @@ private value nullValue("bool") = false;
 private value nullValue("UUID") = 0;
 private default value nullValue(str class) = 0;
 
-public default Heap commit(Heap heap, Event evt){
-  for(Operation op <- evt.operations) {
-    println("Comitting <op>");
-    heap = eval(heap, op);
+public tuple[Heap, Event] commitEvent(Heap heap, Event evt) {
+  list[Operation] ops = [];
+  for(Operation op <- evt.operations){
+    heap = commit(heap, op);
+    ops = ops + op;
   }
+  evt.operations = ops;
+  return <heap, evt>;
+}
+
+public Heap commit(Heap heap, Operation op) {
+  println("Committing <op>");
+  heap = eval(heap, op);
+  //op.state = committed();
   return heap;
 }
 
-private Heap eval(Heap heap, Operation op: o_new(UUID id, str class)) {
+private Heap eval(Heap heap, Operation op: o_new(UUID id, str class)){
   if(id in heap.space) {
     throw "Error creating <class> at <id>. Found existing object <heap.space[id]>.";
   }
@@ -91,7 +100,7 @@ private Heap eval(Heap heap, Operation op: o_rekey(UUID id, UUID new_id)) {
   return heap;
 }
 
-private Heap eval(Heap heap, l_insert(UUID id, int pos, value val)) {
+private Heap eval(Heap heap, Operation op: l_insert(UUID id, int pos, value val)) {
   if(id notin heap.space) {
     throw "Error inserting List value. Object <id> not found.";
   }
