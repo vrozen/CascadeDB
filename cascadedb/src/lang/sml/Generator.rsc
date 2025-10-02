@@ -62,7 +62,6 @@ private tuple[Heap, Event] generate(Heap heap, Event evt, Command cmd: MachRemov
   Object states = heap.space[mach.states];
   int pos = indexOf(states.l, s);
   evt.operations = [l_remove(mach.states, pos, s)];
-  println("bingo!");
   evt.typ = t_effect();  
   return <heap, evt>;
 }

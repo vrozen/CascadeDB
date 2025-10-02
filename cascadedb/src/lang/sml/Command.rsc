@@ -2,6 +2,9 @@ module lang::sml::Command
 
 import lang::delta::Effect;
 
+public list[Event] getSMLEvents(list[Command] cmds) = 
+  [event(id("sml"), id("<cmd>"), t_unknown(), id(""), [], [], [])  | cmd <- cmds];
+
 alias UUID = int;
 
 data Command
@@ -32,6 +35,3 @@ data Command
   | StateInstDelete     (UUID si, UUID def)
   | StateInstSetCount   (UUID si, int count, int oldCount)
   ;
-
-list[Event] getSMLEvents(list[Command] cmds) = 
-  [event(id("sml"), id("<cmd>"), t_unknown(), id(""), [], [], [])  | cmd <- cmds];

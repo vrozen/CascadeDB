@@ -1,6 +1,7 @@
 module lang::sml::Language
 
 import lang::delta::Effect;
+import lang::delta::Language;
 
 import lang::sml::Generator;
 import lang::sml::PreMigrator;
