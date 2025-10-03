@@ -135,14 +135,14 @@ private str print(abs_method(Vis vis, Poly poly, Typ rtyp, ID name, list[Param] 
 private str print(constructor(Vis vis, Store store, ID name, list[Param] params, Body body)) = 
   "<print(vis)><print(store)><print(name)>(<print(params)>)<print(body)>";
   
-private str print(effect(Imp imp, Inverse inverse, bool sideEffect, ID name, list[Param] params, Ops ops, Pre pre, Post post)) =
-  "<print(imp)><print(inverse)><if(sideEffect){>side-<}>effect <print(name)>(<print(params)>) <print(ops)> <print(pre)> <print(post)>";
+private str print(e: effect(Imp imp, Inverse inverse, bool sideEffect, ID name, list[Param] params, Ops ops, Pre pre, Post post)) =
+  "<print(imp)><print(inverse)><if(sideEffect){>side-<}>effect <print(name)>(<print(params)>) <print(ops)> <print(pre)> <print(post)> // <e.src>";
 
-private str print(trigger(Imp imp, ID name, list[Param] params, TPost tpost)) =
-  "<print(imp)<print(name)>(<print(params)>) <print(tpost)>";
+private str print(t: trigger(Imp imp, ID name, list[Param] params, TPost tpost)) =
+  "<print(imp)><print(name)>(<print(params)>) <print(tpost)> // <t.src>";
 
-private str print(signal(ID name, list[Param] params)) =
-  "<print(name)>(<print(params)>)";
+private str print(s: signal(ID name, list[Param] params)) =
+  "<print(name)>(<print(params)>) // <s.src>";
 
 //Note: Operation cannot be printed: AST must be rewritten before print
 
@@ -237,7 +237,7 @@ private str print(t_map(Typ ktyp, Typ vtyp)) = "Map\<<print(ktyp)>,<print(vtyp)>
 private str print(t_enum(ID name)) = print(name);
 
 private str print(id(str val)) = val;
-private str print(cid(str val)) = val;
+//private str print(cid(str val)) = val;
 
 private str print(inv_none()) = "";
 private str print(inv_self()) = "invertible ";
