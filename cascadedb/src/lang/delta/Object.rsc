@@ -8,7 +8,7 @@ import String;
 
 public alias UUID = int;
 
-public data Heap = heap(UUID cur_id = 1, map[UUID, Object] space = ());
+public data Heap = heap(UUID cur_id = 0, map[UUID, Object] space = ());
 
 //todo: separate DSL objects from base types
 data Object
