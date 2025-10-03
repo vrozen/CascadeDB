@@ -7,7 +7,7 @@ data Event = event(
   ID language,                //Identifier of the host language
   ID command,                 //Source command that caused this event
   EventType typ,              //Cascade event type
-  ID target,                  //Identifier of the Cascade event definition
+  ID def,                     //Identifier of the Cascade event definition
   list[Event] pre,            //events executed before the edit operations
   list[Operation] operations, //generated edit operations that transform the heap
   list[Event] post,           //events executed after the edit operations

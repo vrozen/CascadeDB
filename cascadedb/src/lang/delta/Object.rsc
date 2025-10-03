@@ -17,7 +17,7 @@ data Object
   | Map(str class, map[value, value] m) //loc src = |unknown:://|)
   | Mach(str name = "", /*List<State>*/ UUID states = 0, /*Set<MachInst>*/ UUID instances = 0)  // loc src = |unknown:://|)
   | State(str name = "", /*Set<Trans>*/ UUID input = 0, /*Set<Trans>*/ UUID output = 0) // loc src = |unknown:://|)
-  | Trans(str trigger = "", /*State*/ UUID source = 0, /*State*/ UUID target = 0) //loc src = |unknown:://|)
+  | Trans(str evt = "", /*State*/ UUID source = 0, /*State*/ UUID target = 0) //loc src = |unknown:://|)
   | MachInst(/*Mach*/ UUID def = 0, /*StateInst*/ UUID cur = 0, /*Map<State,StateInst>*/ UUID sis = 0) // loc src = |unknown:://|)
   | StateInst(/*State*/ UUID def = 0, int count = 0)
   ;
@@ -85,8 +85,8 @@ private map[str, value] getAllKeywordParameters(node n) {
       }
     }
     case "Trans": {
-      if("trigger" notin params) {
-        params = params + ("trigger": "");
+      if("evt" notin params) {
+        params = params + ("evt": "");
       }
       if("source" notin params) {
         params = params + ("source": 0);

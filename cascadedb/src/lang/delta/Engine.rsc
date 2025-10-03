@@ -35,7 +35,6 @@ public tuple[Heap heap, Event evt] schedule(map[str, Language] languages, Heap h
   Language lang = languages[evt.language.name];
 
   //2. pre-migrate the event
-
   //evt.state = preMigrating();  
   <heap, evt> = lang.preMigrate(heap, evt);
   list[Event] preEvents = [];
@@ -68,8 +67,9 @@ public tuple[Heap heap, Event evt] schedule(map[str, Language] languages, Heap h
   }
   evt.post = postEvents;
 
-  //evt.state = completed();
+  //6. Label events and operations with a program counter
   evt = label(evt);
+  //evt.state = completed();
   return <heap, evt>;
 }
 

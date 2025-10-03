@@ -2,8 +2,6 @@ module lang::delta::Operation
 
 import lang::delta::Object;
 
-/*data OpState = generated() | committed();*/
-
 data Operation
   = o_new    (UUID id, str class, int pc = 0, loc src = |unknown:///|)
   | o_delete (UUID id, str class, int pc = 0, loc src = |unknown:///|)
@@ -19,3 +17,5 @@ data Operation
   | m_remove (UUID id, value key, int pc = 0, loc src = |unknown:///|)
   | m_set    (UUID id, value key, value new_val, value old_val, int pc = 0, loc src = |unknown:///|)
   ;
+
+/*data OpState = generated() | committed();*/

@@ -179,6 +179,7 @@ public Debugger rewind(Debugger db) {
     println("Complete Rewinding: past=<size(db.past)> future=<size(db.future)>");
     db = stepBackOut(db);
   }
+  
   return db;
 }
 
@@ -357,7 +358,7 @@ private Step max(Event evt) {
   return cursor(max);
 }
 
-//Retrieve minimum pc of an event subtree, used for stepping over.
+//Retrieve minimum pc of an event subtree, used for stepping back over.
 private Step min(Event evt) {
   int min = max(evt).pc;
   visit(evt) {
