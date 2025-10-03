@@ -3,8 +3,9 @@ module lang::sml::PreMigrator
 import Map;
 import String;
 import ValueIO;
-import lang::delta::Effect;
 import lang::delta::Object;
+import lang::delta::Effect;
+import lang::sml::Object;
 import lang::sml::Command;
 
 public tuple[Heap, Event] runPreMigrate(Heap heap, Event evt) = 
