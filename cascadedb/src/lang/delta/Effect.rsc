@@ -5,9 +5,9 @@ import lang::delta::Operation;
 //Cause-and-effect chains are nested sequeces of events.
 data Event = event(
   ID language,                //Identifier of the host language
-  ID command,                 //Source command that caused this event
+  ID command,                 //Source command that caused this event (including its source location)
   EventType typ,              //Cascade event type
-  ID def,                     //Identifier of the Cascade event definition
+  ID def,                     //Identifier of the Cascade event definition (i.e. the target of this call)
   list[Event] pre,            //events executed before the edit operations
   list[Operation] operations, //generated edit operations that transform the heap
   list[Event] post,           //events executed after the edit operations
