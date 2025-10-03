@@ -1,6 +1,9 @@
 module Main
 
 import lang::cascade::IDE;
+import lang::cascade::AST;
+import lang::cascade::Printer;
+
 import lang::delta::Language;
 import lang::delta::Object;
 import lang::delta::Engine;
@@ -25,8 +28,7 @@ public str myEditScript1 =
   'sml.StateDelete(14, \"locked\", 1)";
   //'sml.MachDelete(1, \"doors\")";
 
-int main() {
-  lang::cascade::IDE::register();
+void testRewind(){
   map[str, Language] languages = ("sml": SML_Language);
   Heap heap = heap(cur_id=0, space=());
   <heap, thepast> = lang::delta::Engine::run(languages, heap, myEditScript1);
@@ -38,6 +40,25 @@ int main() {
 
   db = play(db);
   print(db.heap); //heap rebuilt
+}
 
+void getLocsManually(){
+  loc MachLoc = |cwd://cascadedb/models/TinyLiveSML/Mach.cml|;
+  loc StateLoc = |cwd://cascadedb/models/TinyLiveSML/State.cml|;
+  loc TransLoc = |cwd://cascadedb/models/TinyLiveSML/Trans.cml|;
+  loc MachInstLoc = |cwd://cascadedb/models/TinyLiveSML/MachInst.cml|;
+  loc StateInstLoc = |cwd://cascadedb/models/TinyLiveSML/StateInst.cml|;
+
+  Package p = cascade_implode(StateInstLoc);
+
+  str prog = prettyPrint(p);
+
+  println(prog);
+}
+
+int main() {
+  lang::cascade::IDE::register();
+  testRewind();
+  //getLocsManually();
   return 0;
 }
