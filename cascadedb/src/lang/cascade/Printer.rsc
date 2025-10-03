@@ -270,7 +270,7 @@ private str print(ScriptOperation op: l_remove (Name name, Value index)) =
   "<print(name)>.remove(<print(index)>); //<op.src>";
 
 private str print(ScriptOperation op: l_remove (Name rval, Name name, Value index)) =
-  "<print(name)>.remove(<print(val)>); //<op.src>";
+  "<print(name)>.remove(<print(index)>); //<op.src>";
 
 private str print(ScriptOperation op: l_set (Name name, Value index, Value val)) = 
   "<print(name)>[<print(index)>] = <print(val)>; //<op.src>";
