@@ -9,6 +9,7 @@ import lang::delta::Effect;
 import lang::delta::Operation;
 import lang::delta::Inverter;
 import lang::delta::Patcher;
+import lang::delta::Language;
 
 /*
 --------------------------------------
@@ -32,7 +33,7 @@ realtime actions
 */
 
 data Debugger
-  = debugger(Heap heap, list[Event] past, list[Event] future, Debugging state);
+  = debugger(map[str, Language] languages, Heap heap, list[Event] past, list[Event] future, Debugging state);
 
 data Debugging
   = done()
@@ -68,7 +69,7 @@ public Debugger stepInto(Debugger db) {
     //if next is an operation, execute the operation
     if(cursor(int pc) := cur && pc in db.state.ops) {
       Operation curOp = db.state.ops[pc];
-      db.heap = commit(db.heap, curOp);
+      db.heap = commit(db.languages, db.heap, curOp);
     }
     //increment the program counter
     db.state.prev = cur;
@@ -94,7 +95,7 @@ public Debugger stepBackInto(Debugger db) {
     if(cursor(int pc) := cur && pc in db.state.ops) {
       Operation curOp = db.state.ops[pc];
       Operation iCurOp = invert(curOp);
-      db.heap = commit(db.heap, iCurOp);
+      db.heap = commit(db.languages, db.heap, iCurOp);
     }
     //decrement the program counter
     db.state.prev = prev(db.state.next, db.state.max);
