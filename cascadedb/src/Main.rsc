@@ -13,6 +13,7 @@ import lang::delta::Debugger;
 import IO;
 import Node;
 import lang::sml::Language;
+import lang::sml::PrettyPrinter;
 
 public str myEditScript1 = 
   "sml.MachCreate(1, \"doors\")
@@ -25,8 +26,8 @@ public str myEditScript1 =
   'sml.TransCreate(20, 4, \"lock\", 14)
   'sml.TransCreate(21, 14, \"unlock\", 4)
   'sml.MachInstTrigger(7, \"lock\")
-  'sml.StateDelete(14, \"locked\", 1)";
-  //'sml.MachDelete(1, \"doors\")";
+  'sml.StateDelete(14, \"locked\", 1)
+  'sml.MachDelete(1, \"doors\")";
 
 void testRewind(){
   map[str, Language] languages = ("sml": SML_Language);
@@ -39,8 +40,12 @@ void testRewind(){
   print(db.heap); //heap is emptied
 
   db = play(db);
-  print(db.heap); //heap rebuilt
+  println(db.heap); //heap rebuilt
+
+  println(prettyPrintMachines(heap));
+  println(prettyPrintMachineInstances(heap));
 }
+
 
 void getLocsManually(){
   loc MachLoc = |cwd://cascadedb/models/TinyLiveSML/Mach.cml|;
