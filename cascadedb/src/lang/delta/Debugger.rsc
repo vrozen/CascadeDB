@@ -64,12 +64,15 @@ public Debugger stepInto(Debugger db) {
     db = beginForward(db);
   } else {
     Step cur = db.state.next;
-    println("Step into <cur>");
     //we are in a partial execution
     //if next is an operation, execute the operation
-    if(cursor(int pc) := cur && pc in db.state.ops) {
-      Operation curOp = db.state.ops[pc];
-      db.heap = commit(db.languages, db.heap, curOp);
+    if(cursor(int pc) := cur) {
+      if(pc in db.state.ops) {
+        Operation curOp = db.state.ops[pc];
+        db.heap = commit(db.languages, db.heap, curOp);
+      } else {
+        println("Step into <cur> <db.state.events[pc].command.src>");
+      }
     }
     //increment the program counter
     db.state.prev = cur;
@@ -89,13 +92,16 @@ public Debugger stepBackInto(Debugger db) {
     db = beginBackward(db);
   } else {
     Step cur = db.state.prev;
-    println("Step back into <cur>");
     //we are in a partial execution
     //if prev is an operation, execute the operation
-    if(cursor(int pc) := cur && pc in db.state.ops) {
-      Operation curOp = db.state.ops[pc];
-      Operation iCurOp = invert(curOp);
-      db.heap = commit(db.languages, db.heap, iCurOp);
+    if(cursor(int pc) := cur){
+      if(pc in db.state.ops) {
+        Operation curOp = db.state.ops[pc];
+        Operation iCurOp = invert(curOp);
+        db.heap = commit(db.languages, db.heap, iCurOp);
+      } else {
+        println("Step back into <cur> <db.state.events[pc].command.src>");
+      }
     }
     //decrement the program counter
     db.state.prev = prev(db.state.next, db.state.max);
