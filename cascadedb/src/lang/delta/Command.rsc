@@ -5,17 +5,25 @@ import lang::delta::Object;
 //todo, create a REPL interpreter with debug commands!
 
 data Command
-  = Assign(ID var, Val val)
+  //debugger commands
+  = StepInto(int db)
+  | StepBackInto(int db)
+  | StepOver(int db)
+  | StepBackOver(int db)
+  | StepOut(int db)
+  | StepBackOut(int db)
+  | Play(int db)
+  | Rewind(int db)
+  //script commands
+  | Assign(ID var, Val val)
   | Call(Name name, list[value] operands)
   | Declare(ID var)
   | Delete(ID var)
-  | Initialize()
   | Print(ID var)
-  | Help()
-  | Import(ID language)
-  | StepBack()
-  | StepBack(Val steps)
   ;
+  //| Initialize()
+  //| Help()
+  //| Import(ID language)
 
 data Name
   = name(list[ID] part);
