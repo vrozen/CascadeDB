@@ -286,15 +286,13 @@ private Heap eval(map[str, Language] languages, Heap heap, Operation op: m_set(U
 private Object evalCreate(map[str, Language] languages, str class) {
   Object object = null();
   int sep = findFirst(class, ".");
-  if(sep == -1) {
-    //list, set of map
-    object = create(class);
-  } else {
-    //domain-specific object
+  if(sep == -1) {           
+    object = create(class); //create list, set of map
+  } else {                  
     str lang = substring(class, 0, sep);
     str class = substring(class, sep+1);
     Language language = languages[lang];
-    object = language.create(class);
+    object = language.create(class); //create domain-specific object
   }
   return object;
 }
