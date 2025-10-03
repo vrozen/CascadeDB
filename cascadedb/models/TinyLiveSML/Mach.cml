@@ -43,9 +43,9 @@ package sml {
     }
     
     inverse effect Delete(past Mach m, String name = m.name) {
-      m.name = "";       
-      delete m.states;
       delete m.instances;
+      delete m.states;
+      m.name = "";
       delete m;
     }
     pre {

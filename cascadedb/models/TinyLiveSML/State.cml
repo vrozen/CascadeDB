@@ -37,16 +37,16 @@ package sml {
   
     effect Create(future State s, String name, Mach m) {
       s = new State();
+      s.name = name;
       s.input = new Set<Trans>();
       s.output = new Set<Trans>();      
-      s.name = name;
     }
     post { Mach.AddState(m, s); }
   
     inverse effect Delete(past State s, String name = s.name, Mach m) {
-      s.name = "";
-      delete s.input;
       delete s.output;
+      delete s.input;
+      s.name = "";
       delete s;
     }
     pre {

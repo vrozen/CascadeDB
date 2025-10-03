@@ -37,9 +37,9 @@ package sml {
   
     effect Create(future MachInst mi, Mach def) {
       mi = new MachInst();
+      mi.sis = new Map<State, StateInst>();
       mi.def = def;
       mi.cur = null;
-      mi.sis = new Map<State, StateInst>();
     }
     post {
       Mach.AddMachInst(mi.def, mi);  
@@ -52,8 +52,8 @@ package sml {
     }
   
     inverse effect Delete(past MachInst mi, Mach def = mi.def) {
-      mi.def = null;
       mi.cur = null;
+      mi.def = null;
       delete mi.sis;
       delete mi;
     }
@@ -95,13 +95,13 @@ package sml {
       }
     }
 
-    trigger Trigger(MachInst mi, String event) {
+    trigger Trigger(MachInst mi, String evt) {
       if(mi.cur == null) {
         MissingCurrentState(mi);
         return;
       }
       foreach(Trans t in mi.cur.def.output) {
-        if(t.event == event) {
+        if(t.evt == evt) {
           StateInst nextState = mi.sis[t.target];
           SetCurState(mi, nextState);
           return;

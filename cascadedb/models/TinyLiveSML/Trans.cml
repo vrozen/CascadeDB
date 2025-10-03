@@ -32,13 +32,13 @@
 package sml {
   class Trans {
     ref State source;
-    String event;
+    String evt;
     ref State target;
   
-    effect Create(future Trans t, State source, String event, State target) {
+    effect Create(future Trans t, State source, String evt, State target) {
       t = new Trans();
       t.source = source;
-      t.event = event;
+      t.evt = evt;
       t.target = target;
     }
     post {
@@ -46,10 +46,10 @@ package sml {
       State.AddIn(target, t);
     }
   
-    inverse effect Delete(past Trans t, State source = t.source, String event = t.event, State target = t.target) {
-      t.source = null;
-      t.event = null;
+    inverse effect Delete(past Trans t, State source = t.source, String evt = t.evt, State target = t.target) {
       t.target = null;
+      t.evt = null;
+      t.source = null;
       delete t;
     }
     pre {
