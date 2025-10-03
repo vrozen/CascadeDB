@@ -4,10 +4,10 @@ import List;
 import IO;
 import ValueIO;
 
+import lang::delta::Operation;
 import lang::delta::Object;
 import lang::delta::Effect;
-import lang::delta::Operation;
-
+import lang::sml::Object;
 import lang::sml::Command;
 
 tuple[Heap, Event] runGenerate(Heap heap, Event evt) = 
@@ -19,7 +19,7 @@ private tuple[Heap, Event] generate(Heap heap, Event evt, Command cmd: MachCreat
   <instances, heap> = getNextId(heap);
 
   evt.operations = [
-    o_new(m, "Mach", src = |cwd://cascadedb/models/TinyLiveSML/Mach.cml|(2021,14,<39,6>,<39,20>)),
+    o_new(m, "sml.Mach", src = |cwd://cascadedb/models/TinyLiveSML/Mach.cml|(2021,14,<39,6>,<39,20>)),
     o_set(m, "name", name, "", src = |cwd://cascadedb/models/TinyLiveSML/Mach.cml|(2044,13,<40,6>,<40,19>)),
     o_new(states, "List[State]", src = |cwd://cascadedb/models/TinyLiveSML/Mach.cml|(2066,27,<41,6>,<41,33>)),
     o_set(m, "states", states, 0, src = |cwd://cascadedb/models/TinyLiveSML/Mach.cml|(2066,27,<41,6>,<41,33>)),
@@ -40,7 +40,7 @@ private tuple[Heap, Event] generate(Heap heap, Event evt, Command cmd: MachDelet
     o_set(m, "states", 0, mach.states, src = |cwd://cascadedb/models/TinyLiveSML/Mach.cml|(2248,15,<47,6>,<47,21>)),
     o_delete(mach.states, "List[State]", src = |cwd://cascadedb/models/TinyLiveSML/Mach.cml|(2248,15,<47,6>,<47,21>)),
     o_set(m, "name", "", mach.name, src = |cwd://cascadedb/models/TinyLiveSML/Mach.cml|(2272,11,<48,6>,<48,17>)),
-    o_delete(m, "Mach", src = |cwd://cascadedb/models/TinyLiveSML/Mach.cml|(2292,8,<49,6>,<49,14>))
+    o_delete(m, "sml.Mach", src = |cwd://cascadedb/models/TinyLiveSML/Mach.cml|(2292,8,<49,6>,<49,14>))
   ];
 
   evt.typ = t_effect();
@@ -49,6 +49,7 @@ private tuple[Heap, Event] generate(Heap heap, Event evt, Command cmd: MachDelet
 
 private tuple[Heap, Event] generate(Heap heap, Event evt, Command cmd: MachAddState(UUID m, UUID s)) {
   Object mach = heap.space[m];
+  println("<mach>");
   evt.operations = [
     l_push(mach.states, s, src = |cwd://cascadedb/models/TinyLiveSML/Mach.cml|(2560,15,<61,6>,<61,21>))
   ];
@@ -94,7 +95,7 @@ private tuple[Heap, Event] generate(Heap heap, Event evt, Command cmd: StateCrea
   <output, heap> = getNextId(heap);
 
   evt.operations = [
-    o_new(s, "State", src = |cwd://cascadedb/models/TinyLiveSML/State.cml|(2023,15,<39,6>,<39,21>)),
+    o_new(s, "sml.State", src = |cwd://cascadedb/models/TinyLiveSML/State.cml|(2023,15,<39,6>,<39,21>)),
     o_set(s, "name", name, "", src = |cwd://cascadedb/models/TinyLiveSML/State.cml|(2047,13,<40,6>,<40,19>)),
     o_new(input, "Set[Trans]", src = |cwd://cascadedb/models/TinyLiveSML/State.cml|(2069,26,<41,6>,<41,32>)),
     o_set(s, "input", input, 0, src = |cwd://cascadedb/models/TinyLiveSML/State.cml|(2069,26,<41,6>,<41,32>)),
@@ -115,7 +116,7 @@ private tuple[Heap, Event] generate(Heap heap, Event evt, Command cmd: StateDele
     o_set(s, "input", 0, state.input, src = |cwd://cascadedb/models/TinyLiveSML/State.cml|(2289,14,<48,6>,<48,20>)),
     o_delete(state.input, "Set[Trans]", src = |cwd://cascadedb/models/TinyLiveSML/State.cml|(2289,14,<48,6>,<48,20>)),
     o_set(s, "name", "", state.name, src = |cwd://cascadedb/models/TinyLiveSML/State.cml|(2312,11,<49,6>,<49,17>)),
-    o_delete(s, "State", src = |cwd://cascadedb/models/TinyLiveSML/State.cml|(2332,8,<50,6>,<50,14>))
+    o_delete(s, "sml.State", src = |cwd://cascadedb/models/TinyLiveSML/State.cml|(2332,8,<50,6>,<50,14>))
   ];
 
   evt.typ = t_effect();
@@ -161,7 +162,7 @@ private tuple[Heap, Event] generate(Heap heap, Event evt, Command cmd: StateRemo
 private tuple[Heap, Event] generate(Heap heap, Event evt, Command cmd: TransCreate(UUID t, UUID source, str evt2, UUID target)) {
   heap = claim(heap, t);
   evt.operations = [
-    o_new(t, "Trans", src = |cwd://cascadedb/models/TinyLiveSML/Trans.cml|(2044,15,<39,6>,<39,21>)),
+    o_new(t, "sml.Trans", src = |cwd://cascadedb/models/TinyLiveSML/Trans.cml|(2044,15,<39,6>,<39,21>)),
     o_set(t, "source", source, 0, src = |cwd://cascadedb/models/TinyLiveSML/Trans.cml|(2068,17,<40,6>,<40,23>)),
     o_set(t, "evt",  evt2, "", src = |cwd://cascadedb/models/TinyLiveSML/Trans.cml|(2092,11,<41,6>,<41,17>)),
     o_set(t, "target", target, 0, src = |cwd://cascadedb/models/TinyLiveSML/Trans.cml|(2112,17,<42,6>,<42,23>))
@@ -175,7 +176,7 @@ private tuple[Heap, Event] generate(Heap heap, Event evt, Command cmd: TransDele
     o_set(t, "target", 0, target, src = |cwd://cascadedb/models/TinyLiveSML/Trans.cml|(2344,15,<50,6>,<50,21>)),
     o_set(t, "evt", "", evt2, src = |cwd://cascadedb/models/TinyLiveSML/Trans.cml|(2368,12,<51,6>,<51,18>)),
     o_set(t, "source", 0, source, src = |cwd://cascadedb/models/TinyLiveSML/Trans.cml|(2389,15,<52,6>,<52,21>)),
-    o_delete(t, "Trans", src = |cwd://cascadedb/models/TinyLiveSML/Trans.cml|(2413,8,<53,6>,<53,14>))
+    o_delete(t, "sml.Trans", src = |cwd://cascadedb/models/TinyLiveSML/Trans.cml|(2413,8,<53,6>,<53,14>))
   ];
   evt.typ = t_effect();  
   return <heap, evt>;
@@ -186,7 +187,7 @@ private tuple[Heap, Event] generate(Heap heap, Event evt, Command cmd: MachInstC
   <sis, heap> = getNextId(heap);
 
   evt.operations = [
-    o_new(mi, "MachInst", src = |cwd://cascadedb/models/TinyLiveSML/MachInst.cml|(1991,19,<39,6>,<39,25>)),
+    o_new(mi, "sml.MachInst", src = |cwd://cascadedb/models/TinyLiveSML/MachInst.cml|(1991,19,<39,6>,<39,25>)),
     o_new(sis, "Map[State,StateInst]", src = |cwd://cascadedb/models/TinyLiveSML/MachInst.cml|(2018,36,<40,6>,<40,42>)),
     o_set(mi, "sis", sis, 0, src = |cwd://cascadedb/models/TinyLiveSML/MachInst.cml|(2018,36,<40,6>,<40,42>)),
     o_set(mi, "def", def, 0, src = |cwd://cascadedb/models/TinyLiveSML/MachInst.cml|(2062,12,<41,6>,<41,18>)),
@@ -205,7 +206,7 @@ private tuple[Heap, Event] generate(Heap heap, Event evt, Command cmd: MachInstD
     o_set(mi, "def", 0, machInst.def, src = |cwd://cascadedb/models/TinyLiveSML/MachInst.cml|(2423,13,<56,6>,<56,19>)),
     o_set(mi, "sis", 0, machInst.sis, src = |cwd://cascadedb/models/TinyLiveSML/MachInst.cml|(2444,13,<57,6>,<57,19>)),
     o_delete(machInst.sis, "Map[State,StateInst]", src = |cwd://cascadedb/models/TinyLiveSML/MachInst.cml|(2444,13,<57,6>,<57,19>)),
-    o_delete(mi, "MachInst", src = |cwd://cascadedb/models/TinyLiveSML/MachInst.cml|(2465,9,<58,6>,<58,15>))
+    o_delete(mi, "sml.MachInst", src = |cwd://cascadedb/models/TinyLiveSML/MachInst.cml|(2465,9,<58,6>,<58,15>))
   ];
 
   evt.typ = t_effect();
@@ -268,7 +269,7 @@ private tuple[Heap, Event] generate(Heap heap, Event evt, Command cmd: MachInstT
 private tuple[Heap, Event] generate(Heap heap, Event evt, Command cmd: StateInstCreate(UUID si, UUID def)) {
   //heap = claim(heap, si); (already claimed by postmigrator)
   evt.operations = [
-    o_new(si, "StateInst", src = |cwd://cascadedb/models/TinyLiveSML/StateInst.cml|(1959,20,<38,6>,<38,26>)),
+    o_new(si, "sml.StateInst", src = |cwd://cascadedb/models/TinyLiveSML/StateInst.cml|(1959,20,<38,6>,<38,26>)),
     o_set(si, "count", 0, 0, src = |cwd://cascadedb/models/TinyLiveSML/StateInst.cml|(1987,12,<39,6>,<39,18>)),
     o_set(si, "def", def, 0, src = |cwd://cascadedb/models/TinyLiveSML/StateInst.cml|(2007,10,<40,6>,<40,16>))
   ];
@@ -281,7 +282,7 @@ private tuple[Heap, Event] generate(Heap heap, Event evt, Command cmd: StateInst
   evt.operations = [
     o_set(si, "def", 0, stateInst.def, src = |cwd://cascadedb/models/TinyLiveSML/StateInst.cml|(2106,13,<44,6>,<44,19>)),
     o_set(si, "count", 0, stateInst.count, src = |cwd://cascadedb/models/TinyLiveSML/StateInst.cml|(2127,12,<45,6>,<45,18>)),
-    o_delete(si, "StateInst", src = |cwd://cascadedb/models/TinyLiveSML/StateInst.cml|(2147,9,<46,6>,<46,15>))
+    o_delete(si, "sml.StateInst", src = |cwd://cascadedb/models/TinyLiveSML/StateInst.cml|(2147,9,<46,6>,<46,15>))
   ];
   evt.typ = t_effect();
   return <heap, evt>;
