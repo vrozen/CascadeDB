@@ -1,6 +1,7 @@
 module lang::sml::PrettyPrinter
 
 import lang::delta::Object;
+import lang::sml::Object;
 
 //The pretty printer generates textual SML representations
 
