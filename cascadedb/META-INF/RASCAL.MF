@@ -2,4 +2,3 @@ Manifest-Version: 0.0.1
 Project-Name: cascadedb
 Source: src
 Require-Libraries: |lib://rascal-lsp|
-    
