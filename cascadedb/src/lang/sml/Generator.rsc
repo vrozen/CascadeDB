@@ -82,7 +82,7 @@ private tuple[Heap, Event] generate(Heap heap, Event evt, Command cmd: MachAddMa
 private tuple[Heap, Event] generate(Heap heap, Event evt, Command cmd: MachRemoveMachInst(UUID m, UUID mi)) {
   Object mach = heap.space[m];
   evt.operations = [
-    s_remove(mach.instances, mi, |cwd://cascadedb/models/TinyLiveSML/Mach.cml|(3356,22,<92,6>,<92,28>))
+    s_remove(mach.instances, mi, src = |cwd://cascadedb/models/TinyLiveSML/Mach.cml|(3356,22,<92,6>,<92,28>))
   ];
   evt.typ = t_effect();
   return <heap, evt>;
