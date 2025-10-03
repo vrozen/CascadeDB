@@ -4,8 +4,9 @@ import ValueIO;
 import Map;
 import List;
 import String;
-import lang::delta::Effect;
 import lang::delta::Object;
+import lang::delta::Effect;
+import lang::sml::Object;
 import lang::sml::Command;
 
 public tuple[Heap, Event] runPostMigrate(Heap heap, Event evt) = 
