@@ -12,15 +12,29 @@ public data Heap = heap(UUID cur_id = 0, map[UUID, Object] space = ());
 
 //todo: separate DSL objects from base types
 data Object
-  = List(str class, list[value] l) // loc src = |unknown:://|)
+  = null()
+  | List(str class, list[value] l) // loc src = |unknown:://|)
   | Set(str class, set[value] s) //loc src = |unknown:://|)
   | Map(str class, map[value, value] m) //loc src = |unknown:://|)
-  | Mach(str name = "", /*List<State>*/ UUID states = 0, /*Set<MachInst>*/ UUID instances = 0)  // loc src = |unknown:://|)
-  | State(str name = "", /*Set<Trans>*/ UUID input = 0, /*Set<Trans>*/ UUID output = 0) // loc src = |unknown:://|)
-  | Trans(str evt = "", /*State*/ UUID source = 0, /*State*/ UUID target = 0) //loc src = |unknown:://|)
-  | MachInst(/*Mach*/ UUID def = 0, /*StateInst*/ UUID cur = 0, /*Map<State,StateInst>*/ UUID sis = 0) // loc src = |unknown:://|)
-  | StateInst(/*State*/ UUID def = 0, int count = 0)
+  //| Mach(str name = "", /*List<State>*/ UUID states = 0, /*Set<MachInst>*/ UUID instances = 0)  // loc src = |unknown:://|)
+  //| State(str name = "", /*Set<Trans>*/ UUID input = 0, /*Set<Trans>*/ UUID output = 0) // loc src = |unknown:://|)
+  //| Trans(str evt = "", /*State*/ UUID source = 0, /*State*/ UUID target = 0) //loc src = |unknown:://|)
+  //| MachInst(/*Mach*/ UUID def = 0, /*StateInst*/ UUID cur = 0, /*Map<State,StateInst>*/ UUID sis = 0) // loc src = |unknown:://|)
+  //| StateInst(/*State*/ UUID def = 0, int count = 0)
   ;
+
+public Object create(str class) {
+  //todo: check class exists
+  //todo: create objects in a more generic manner
+  if(startsWith(class, "List")) {
+    return List(class, []);
+  } else if(startsWith(class, "Set")) {
+    return Set(class, {});
+  } else if(startsWith(class, "Map")) {
+    return Map(class, ());
+  }
+  throw "Delta cannot create object <class>, expected List, Set or Map.";
+}
 
 public Heap claim(Heap heap, UUID id) {
   if(id > heap.cur_id){
@@ -38,6 +52,7 @@ public tuple[UUID, Heap] getNextId(Heap heap) {
   return <id, heap>;
 }
 
+/*
 public Object create(str class) {
   //todo: check class exists
   //todo: create objects in a more generic manner
@@ -116,4 +131,4 @@ private map[str, value] getAllKeywordParameters(node n) {
     }
   }
   return params;
-}
+} */

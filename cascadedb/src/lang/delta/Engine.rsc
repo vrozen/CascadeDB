@@ -52,7 +52,7 @@ public tuple[Heap heap, Event evt] schedule(map[str, Language] languages, Heap h
   //evt.state = committing();
   list[Operation] ops = [];
   for(Operation op <- evt.operations){
-    heap = commit(heap, op);
+    heap = commit(languages, heap, op);
     ops = ops + op;
   }
   evt.operations = ops;

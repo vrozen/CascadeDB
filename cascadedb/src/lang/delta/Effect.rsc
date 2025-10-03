@@ -21,15 +21,3 @@ data EventType
   ;
 
 data ID = id(str name, loc src = |loc:///unknown|);
-
-/*
-data EventState
-  = scheduled()      //not yet executing
-  | preMigrating()   //executing its pre-migration events
-  | postMigrating()  //executing its post-migration events
-  | generating()     //generating edit operations
-  | committing()     //executing edit operations
-  | completed()      //completed the event, which is now in the past
-  ;
-*/
-

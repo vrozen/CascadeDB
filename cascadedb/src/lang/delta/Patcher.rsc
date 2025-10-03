@@ -3,6 +3,7 @@ module lang::delta::Patcher
 import lang::delta::Object;
 import lang::delta::Operation;
 import lang::delta::Effect;
+import lang::delta::Language;
 
 import Type;
 import IO;
@@ -17,38 +18,38 @@ private value nullValue("bool") = false;
 private value nullValue("UUID") = 0;
 private default value nullValue(str class) = 0;
 
-public tuple[Heap, Event] commitEvent(Heap heap, Event evt) {
+public tuple[Heap, Event] commitEvent(map[str, Language] languages, Heap heap, Event evt) {
   list[Operation] ops = [];
   for(Operation op <- evt.operations){
-    heap = commit(heap, op);
+    heap = commit(languages, heap, op);
     ops = ops + op;
   }
   evt.operations = ops;
   return <heap, evt>;
 }
 
-public Heap commit(Heap heap, Operation op) {
+public Heap commit(map[str, Language] languages, Heap heap, Operation op) {
   println("Committing <op>");
-  heap = eval(heap, op);
+  heap = eval(languages, heap, op);
   //op.state = committed();
   return heap;
 }
 
-private Heap eval(Heap heap, Operation op: o_new(UUID id, str class)){
+private Heap eval(map[str, Language] languages, Heap heap, Operation op: o_new(UUID id, str class)){
   if(id in heap.space) {
     throw "Error creating <class> at <id>. Found existing object <heap.space[id]>.";
   }
-  Object object = create(class);
+  Object object = evalCreate(languages, class);
   heap.space[id] = object;
   return heap;
 }
 
-private Heap eval(Heap heap, Operation op: o_delete(UUID id, str class)) {
+private Heap eval(map[str, Language] languages, Heap heap, Operation op: o_delete(UUID id, str class)) {
   if(id notin heap.space) {
     throw "Error deleting <class>. Object <id> not found.";
   }
   Object object = heap.space[id];
-  Object defaultObject = create(class);
+  Object defaultObject = evalCreate(languages, class);
 
   //check the deleted object has the expected type
   if(getName(object) != getName(defaultObject)) {
@@ -64,11 +65,10 @@ private Heap eval(Heap heap, Operation op: o_delete(UUID id, str class)) {
   return heap;
 }
 
-private Heap eval(Heap heap, Operation op: o_set(UUID id, str field, value new_val, value old_val)) {
+private Heap eval(map[str, Language] languages, Heap heap, Operation op: o_set(UUID id, str field, value new_val, value old_val)) {
   if(id notin heap.space) {
     throw "Error setting Object field. Object <id> not found.";
   }
-
   Object object = heap.space[id];
 
   //note: assumes all keyword parameters are inside the object
@@ -83,13 +83,12 @@ private Heap eval(Heap heap, Operation op: o_set(UUID id, str field, value new_v
   }
 
   params[field] = new_val;
-  str class = getName(object);
-  object = make(#Object, class, [], params);
+  object = setKeywordParameters(object, params);
   heap.space[id] = object;
   return heap;
 }
 
-private Heap eval(Heap heap, Operation op: o_rekey(UUID id, UUID new_id)) {
+private Heap eval(map[str, Language] languages, Heap heap, Operation op: o_rekey(UUID id, UUID new_id)) {
   if(id notin heap.space) {
     throw "Error setting Object field. Object <id> not found.";
   }
@@ -100,7 +99,7 @@ private Heap eval(Heap heap, Operation op: o_rekey(UUID id, UUID new_id)) {
   return heap;
 }
 
-private Heap eval(Heap heap, Operation op: l_insert(UUID id, int pos, value val)) {
+private Heap eval(map[str, Language] languages, Heap heap, Operation op: l_insert(UUID id, int pos, value val)) {
   if(id notin heap.space) {
     throw "Error inserting List value. Object <id> not found.";
   }
@@ -117,7 +116,7 @@ private Heap eval(Heap heap, Operation op: l_insert(UUID id, int pos, value val)
   return heap;
 }
 
-private Heap eval(Heap heap, Operation op: l_remove(UUID id, int pos, value val)) {
+private Heap eval(map[str, Language] languages, Heap heap, Operation op: l_remove(UUID id, int pos, value val)) {
   if(id notin heap.space) {
     throw "Error removing List value. Object <id> not found.";
   } 
@@ -137,7 +136,7 @@ private Heap eval(Heap heap, Operation op: l_remove(UUID id, int pos, value val)
   return heap;
 }
 
-private Heap eval(Heap heap, Operation op: l_push(UUID id, value val)) {
+private Heap eval(map[str, Language] languages, Heap heap, Operation op: l_push(UUID id, value val)) {
   if(id notin heap.space) {
     throw "Error pushing List value. Object <id> not found.";
   }
@@ -153,7 +152,7 @@ private Heap eval(Heap heap, Operation op: l_push(UUID id, value val)) {
   return heap;
 }
 
-private Heap eval(Heap heap, Operation op: l_pop(UUID id, value val)) {
+private Heap eval(map[str, Language] languages, Heap heap, Operation op: l_pop(UUID id, value val)) {
   if(id notin heap.space) {
     throw "Error popping List value. Object <id> not found.";
   }
@@ -173,7 +172,7 @@ private Heap eval(Heap heap, Operation op: l_pop(UUID id, value val)) {
   return heap;
 }
 
-private Heap eval(Heap heap, Operation op: s_add(UUID id, value val)) {
+private Heap eval(map[str, Language] languages, Heap heap, Operation op: s_add(UUID id, value val)) {
   if(id notin heap.space) {
     throw "Error adding Set value. Object <id> not found.";
   }
@@ -189,7 +188,7 @@ private Heap eval(Heap heap, Operation op: s_add(UUID id, value val)) {
   return heap;
 }
 
-private Heap eval(Heap heap, Operation op: s_remove(UUID id, value val)) {
+private Heap eval(map[str, Language] languages, Heap heap, Operation op: s_remove(UUID id, value val)) {
   if(id notin heap.space) {
     throw "Error removing Set value. Object <id> not found.";
   } 
@@ -206,7 +205,7 @@ private Heap eval(Heap heap, Operation op: s_remove(UUID id, value val)) {
   return heap;
 }
 
-private Heap eval(Heap heap, Operation op: m_insert(UUID id, value key)) {
+private Heap eval(map[str, Language] languages, Heap heap, Operation op: m_insert(UUID id, value key)) {
   if(id notin heap.space) {
     throw "Error inserting Map value. Object <id> not found.";
   }
@@ -228,7 +227,7 @@ private Heap eval(Heap heap, Operation op: m_insert(UUID id, value key)) {
   return heap;
 }
 
-private Heap eval(Heap heap, Operation op: m_remove(UUID id, value key)) {
+private Heap eval(map[str, Language] languages, Heap heap, Operation op: m_remove(UUID id, value key)) {
   if(id notin heap.space) {
     throw "Error removing Map value. Object <id> not found.";
   } 
@@ -258,7 +257,7 @@ private Heap eval(Heap heap, Operation op: m_remove(UUID id, value key)) {
   return heap;
 }
 
-private Heap eval(Heap heap, Operation op: m_set(UUID id, value key, value new_val, value old_val)) {
+private Heap eval(map[str, Language] languages, Heap heap, Operation op: m_set(UUID id, value key, value new_val, value old_val)) {
   if(id notin heap.space) {
     throw "Error setting Map value. Object <id> not found.";
   }
@@ -282,4 +281,20 @@ private Heap eval(Heap heap, Operation op: m_set(UUID id, value key, value new_v
   }
   
   return heap;
+}
+
+private Object evalCreate(map[str, Language] languages, str class) {
+  Object object = null();
+  int sep = findFirst(class, ".");
+  if(sep == -1) {
+    //list, set of map
+    object = create(class);
+  } else {
+    //domain-specific object
+    str lang = substring(class, 0, sep);
+    str class = substring(class, sep+1);
+    Language language = languages[lang];
+    object = language.create(class);
+  }
+  return object;
 }
