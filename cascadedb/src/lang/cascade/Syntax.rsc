@@ -103,7 +103,7 @@ syntax When
     
 syntax Ops
   = ops_none: ";" 
-  | ops_body: "{" (Operation ";")* ops "}";
+  | ops_body: "{" (ScriptOperation ";")* ops "}";
   
 syntax Body
   = body_none: ";"
@@ -122,7 +122,7 @@ syntax Post
   = post_none: //nothing
   | post_body: "post" Body body;
 
-syntax Operation
+syntax ScriptOperation
   = o_new: Name name "=" "new" Typ typ "(" ")"
   | o_del: "delete" Name name
   | x_assign: Name name "=" Value val                  //becomes o_set, m_add + m_put, l_set
@@ -140,7 +140,7 @@ syntax Statement
   | s_declare_assign: Typ typ ID var "=" Exp val ";"
   | s_assign:  Name name "=" Exp val ";"
   | s_foreach: "foreach" "(" Typ typ ID arg "in" Name name ")" Body body
-  | s_for: "for" "(" Typ typ ID var "=" Exp val ";" Exp conditionExp ";" ID var "=" Exp exp ")" Body body
+  | s_for: "for" "(" Typ typ ID var "=" Exp val ";" Exp conditionExp ";" ID var2 "=" Exp exp ")" Body body
   | s_while: "while" "(" Exp exp ")" Body body
   | s_if: "if" "(" Exp exp ")" Body tbody
   | s_if_else: "if" "(" Exp exp ")" Body tbody "else" Body fbody
@@ -244,8 +244,8 @@ keyword Keyword
   | "continue" | "op" | "Op" | "Type" | "type" | "Value" | "value" | "ID" | "Name" | "is" | "operator" | "id" | "Id" | "as" | "As"
   ;          
   
-public start[Package] tel_parse(str input, loc file) = 
+public start[Package] cascade_parse(str input, loc file) = 
   parse(#start[Package], input, file);
   
-public start[Package] tel_parse(loc file) = 
+public start[Package] cascade_parse(loc file) = 
   parse(#start[Package], file);
