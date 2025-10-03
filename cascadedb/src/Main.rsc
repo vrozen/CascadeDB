@@ -1,5 +1,9 @@
 module Main
 
+import lang::sml::Language;
+import lang::sml::Object;
+import lang::sml::PrettyPrinter;
+
 import lang::cascade::IDE;
 import lang::cascade::AST;
 import lang::cascade::Printer;
@@ -12,8 +16,6 @@ import lang::delta::Debugger;
 
 import IO;
 import Node;
-import lang::sml::Language;
-import lang::sml::PrettyPrinter;
 
 public str myEditScript1 = 
   "sml.MachCreate(1, \"doors\")
@@ -35,7 +37,7 @@ void testRewind(){
   <heap, thepast> = lang::delta::Engine::run(languages, heap, myEditScript1);
   print(heap); //heap is built
 
-  Debugger db = debugger(heap, thepast, [], done());
+  Debugger db = debugger(languages, heap, thepast, [], done());
   db = rewind(db);
   print(db.heap); //heap is emptied
 
@@ -45,7 +47,6 @@ void testRewind(){
   println(prettyPrintMachines(heap));
   println(prettyPrintMachineInstances(heap));
 }
-
 
 void getLocsManually(){
   loc MachLoc = |cwd://cascadedb/models/TinyLiveSML/Mach.cml|;
