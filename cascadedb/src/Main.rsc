@@ -8,6 +8,7 @@ import lang::cascade::IDE;
 import lang::cascade::AST;
 import lang::cascade::Printer;
 
+import lang::delta::REPL;
 import lang::delta::Language;
 import lang::delta::Object;
 import lang::delta::Engine;
@@ -32,20 +33,19 @@ public str myEditScript1 =
   'sml.MachDelete(1, \"doors\")";
 
 void testRewind(){
-  map[str, Language] languages = ("sml": SML_Language);
-  Heap heap = heap(cur_id=0, space=());
-  <heap, thepast> = lang::delta::Engine::run(languages, heap, myEditScript1);
-  print(heap); //heap is built
+  Debugger db = DB_CTX;
+  db = register(db, SML_Language);
+  db = run(db, myEditScript1);
+  print(db.heap); //heap is built
 
-  Debugger db = debugger(languages, heap, thepast, [], done());
   db = rewind(db);
   print(db.heap); //heap is emptied
 
   db = play(db);
   println(db.heap); //heap rebuilt
 
-  println(prettyPrintMachines(heap));
-  println(prettyPrintMachineInstances(heap));
+  println(prettyPrintMachines(db.heap));
+  println(prettyPrintMachineInstances(db.heap));
 }
 
 void getLocsManually(){
