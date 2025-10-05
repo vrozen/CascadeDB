@@ -9,7 +9,7 @@ import lang::sml::Object;
 import lang::sml::Command;
 
 public tuple[Heap, Event] runPreMigrate(Heap heap, Event evt) = 
-  preMigrate(heap, evt, ValueIO::readTextValueString(#Command, evt.command.name));
+  preMigrate(heap, evt, readTextValueString(#Command, evt.command.name));
 
 private tuple[Heap, Event] preMigrate(Heap heap, Event evt, Command cmd: MachDelete(UUID m, str name)) {
   Object mach = heap.space[m];

@@ -10,7 +10,7 @@ import lang::sml::Object;
 import lang::sml::Command;
 
 public tuple[Heap, Event] runPostMigrate(Heap heap, Event evt) = 
-  postMigrate(heap, evt, ValueIO::readTextValueString(#Command, evt.command.name));
+  postMigrate(heap, evt, readTextValueString(#Command, evt.command.name));
 
 private tuple[Heap, Event] postMigrate(Heap heap, Event evt, Command cmd: MachAddState(UUID m, UUID s)) {
   Object mach = heap.space[m];

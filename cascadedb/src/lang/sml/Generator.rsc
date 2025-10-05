@@ -10,8 +10,8 @@ import lang::delta::Effect;
 import lang::sml::Object;
 import lang::sml::Command;
 
-tuple[Heap, Event] runGenerate(Heap heap, Event evt) = 
-  generate(heap, evt, ValueIO::readTextValueString(#Command, evt.command.name));
+public tuple[Heap, Event] runGenerate(Heap heap, Event evt) = 
+  generate(heap, evt, readTextValueString(#Command, evt.command.name));
 
 private tuple[Heap, Event] generate(Heap heap, Event evt, Command cmd: MachCreate(UUID m, str name)) {  
   heap = claim(heap, m);
