@@ -3,7 +3,7 @@ module lang::delta::Language
 import lang::delta::Object;
 import lang::delta::Effect;
 
-data Language = language(str language,
+data Language = language(str name,
   Component preMigrate,
   Component postMigrate,
   Component generate,

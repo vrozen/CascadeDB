@@ -1,30 +1,34 @@
-module lang::repl::Command
+module lang::delta::Command
 
 import lang::delta::Object;
 
-//todo, create a REPL interpreter with debug commands!
-
+//The REPL dispatches debug commands whose prefix is "db" to the debugger
+//e.g., the command db.StepInto(1) calls Debugger::stepInto(1)
 data Command
   //debugger commands
-  = StepInto(int db)
-  | StepBackInto(int db)
-  | StepOver(int db)
-  | StepBackOver(int db)
-  | StepOut(int db)
-  | StepBackOut(int db)
-  | Play(int db)
-  | Rewind(int db)
-  //script commands
-  | Assign(ID var, Val val)
-  | Call(Name name, list[value] operands)
-  | Declare(ID var)
-  | Delete(ID var)
-  | Print(ID var)
+  = StepInto(UUID db)
+  | StepBackInto(UUID db)
+  | StepOver(UUID db)
+  | StepBackOver(UUID db)
+  | StepOut(UUID db)
+  | StepBackOut(UUID db)
+  | Play(UUID db)
+  | Rewind(UUID db)
+  | Delete(UUID db)
   ;
+
+  //script commands
+  //| Assign(ID var, Val val)
+  //| Call(Name name, list[value] operands)
+  //| Declare(ID var)
+  //| Delete(ID var)
+  //| Print(ID var)
+  //;
   //| Initialize()
   //| Help()
   //| Import(ID language)
 
+/*
 data Name
   = name(list[ID] part);
 
@@ -49,3 +53,4 @@ data Command
   | SymbolTableStoreVariable(UUID st, UUID var)
   | SymbolTableRemoveVariable(UUID st, UUID var)
   ;
+*/

@@ -10,16 +10,6 @@ import lang::delta::Object;
 import lang::delta::Patcher;
 import lang::delta::Inverter;
 
-public tuple[Heap heap, list[Event] past] run(map[str, Language] languages, Heap heap, str script) {
-  list[str] commands = split("\n", script);
-  list[Event] evts = [];
-  for(str command <- commands) {
-    <heap, evt> = schedule(languages, heap, command);
-    evts = evts + evt;
-  }
-  return <heap, evts>;
-}
-
 public tuple[Heap heap, Event evt] schedule(map[str, Language] languages, Heap heap, str command) {
   int sep = findFirst(command, ".");
   str lang = substring(command, 0, sep);

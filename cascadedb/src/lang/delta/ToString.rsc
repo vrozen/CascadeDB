@@ -26,4 +26,3 @@ public str toString(Event evt: Effect(str name, map[str, value] params, list[Ope
   '    <toString(e)>
   '  <}>
   '}";
-

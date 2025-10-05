@@ -58,6 +58,7 @@ data Direction
   | backward()
   ;
 
+
 //Redo a future event, operation by operation.
 public Debugger stepInto(Debugger db) {
   if(db.state == done()) {
@@ -66,12 +67,14 @@ public Debugger stepInto(Debugger db) {
     Step cur = db.state.next;
     //we are in a partial execution
     //if next is an operation, execute the operation
+    println("Step into <cur>");
     if(cursor(int pc) := cur) {
       if(pc in db.state.ops) {
         Operation curOp = db.state.ops[pc];
         db.heap = commit(db.languages, db.heap, curOp);
       } else {
-        println("Step into <cur> <db.state.events[pc].command.src>");
+        println("Calling <db.state.events[pc].command.name>");
+        println("Executing <db.state.events[pc].def.src>");
       }
     }
     //increment the program counter
@@ -94,13 +97,15 @@ public Debugger stepBackInto(Debugger db) {
     Step cur = db.state.prev;
     //we are in a partial execution
     //if prev is an operation, execute the operation
+    println("Step back into <cur>");
     if(cursor(int pc) := cur){
       if(pc in db.state.ops) {
         Operation curOp = db.state.ops[pc];
         Operation iCurOp = invert(curOp);
         db.heap = commit(db.languages, db.heap, iCurOp);
       } else {
-        println("Step back into <cur> <db.state.events[pc].command.src>");
+        println("Calling <db.state.events[pc].command.name>");
+        println("Executing <db.state.events[pc].def.src>");
       }
     }
     //decrement the program counter
@@ -120,7 +125,7 @@ public Debugger stepOut(Debugger db){
   } else {
     Step cur = db.state.next;
     Step out = nextOut(db, cur);
-    println("Step out from <cur> to <out>");    
+    println("Step out from <cur> to <out>");
     db = stepUntil(db, out);
   }
   return db;
