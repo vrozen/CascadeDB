@@ -4,6 +4,7 @@ import ValueIO;
 import String;
 
 import lang::delta::Object;
+import lang::delta::Effect;
 import lang::delta::Language;
 import lang::delta::Command;
 import lang::delta::Debugger;
@@ -45,9 +46,9 @@ public Debugger schedule(Debugger db, str command) {
     Command cmd = ValueIO::readTextValueString(#Command, command);
     db = dispatch(db, cmd);
   } else {
-    tuple[Heap heap, Event evt] r := schedule(db.languages, db.heap, command);
+    tuple[Heap heap, Event evt] r = schedule(db.languages, db.heap, command);
     db.heap = r.heap;
-    db.past = GLOBAL_CTX.past + [r.evt];
+    db.past = db.past + [r.evt];
     db.future = []; //the debugger does not yet handle branching time
   }
   return db;
