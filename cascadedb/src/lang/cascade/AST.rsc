@@ -30,9 +30,7 @@
  *   * Riemer van Rozen - rozen@cwi.nl - CWI
  ******************************************************************************/
 /**
- * ASTs express the structure of TEL programs and C# programs.
- * By using the same set of datatypes for both formalisms,
- * TEL ASTs can be step-wise rewritten into valid C# ASTs.
+ * ASTs express the structure of Cascade programs.
  */
  
 module lang::cascade::AST
