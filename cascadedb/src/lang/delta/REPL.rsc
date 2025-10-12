@@ -2,6 +2,7 @@ module lang::delta::REPL
 
 import ValueIO;
 import String;
+import IO;
 
 import lang::delta::Object;
 import lang::delta::Effect;
@@ -30,8 +31,7 @@ public Debugger register(Debugger db, Language lang) {
   return db;
 }
 
-public Debugger run(Debugger db, str script) {
-  list[str] commands = split("\n", script);
+public Debugger run(Debugger db, list[str] commands) {
   for(str command <- commands) {
     db = schedule(db, command);
   }
@@ -43,22 +43,28 @@ public Debugger schedule(Debugger db, str command) {
   str lang = substring(command, 0, sep);
   str cmd = substring(command, sep+1); 
   if(lang == "db") {
-    Command cmd = ValueIO::readTextValueString(#Command, command);
-    db = dispatch(db, cmd);
+    println("Dispatch <lang>.<cmd>");
+    Command c = ValueIO::readTextValueString(#Command, cmd);
+    db = dispatch(db, c);
   } else {
-    tuple[Heap heap, Event evt] r = schedule(db.languages, db.heap, command);
-    db.heap = r.heap;
-    db.past = db.past + [r.evt];
+    if(db.state != done()){
+      db = stepOut(db);
+    }
+    tuple[Heap heap, Event evt] result = schedule(db.languages, db.heap, command);
+    db.heap = result.heap;
+    db.past = db.past + [result.evt];
     db.future = []; //the debugger does not yet handle branching time
   }
   return db;
 }
 
-private Debugger dispatch(Debugger ctx, Command cmd: StepInto(UUID db)) = stepInto(ctx);
-private Debugger dispatch(Debugger ctx, Command cmd: StepBackInto(UUID db))= stepInto(ctx);
-private Debugger dispatch(Debugger ctx, Command cmd: StepOver(UUID db)) = stepOver(ctx);
-private Debugger dispatch(Debugger ctx, Command cmd: StepBackOver(UUID db)) = stepBackOver(ctx);
-private Debugger dispatch(Debugger ctx, Command cmd: StepOut(UUID db)) = stepOut(ctx);
-private Debugger dispatch(Debugger ctx, Command cmd: StepBackOut(UUID db)) = stepBackOut(ctx);
-private Debugger dispatch(Debugger ctx, Command cmd: Play(UUID db)) = play(ctx);
-private Debugger dispatch(Debugger ctx, Command cmd: Rewind(UUID db)) = rewind(ctx);
+private Debugger dispatch(Debugger db, Command cmd: SelectId(UUID id)) = setSelected(db, id);
+private Debugger dispatch(Debugger db, Command cmd: SetVisible(bool visible)) = setVisible(db, visible);
+private Debugger dispatch(Debugger db, Command cmd: StepInto()) = stepInto(db);
+private Debugger dispatch(Debugger db, Command cmd: StepBackInto())= stepInto(db);
+private Debugger dispatch(Debugger db, Command cmd: StepOver()) = stepOver(db);
+private Debugger dispatch(Debugger db, Command cmd: StepBackOver()) = stepBackOver(db);
+private Debugger dispatch(Debugger db, Command cmd: StepOut()) = stepOut(db);
+private Debugger dispatch(Debugger db, Command cmd: StepBackOut()) = stepBackOut(db);
+private Debugger dispatch(Debugger db, Command cmd: Play()) = play(db);
+private Debugger dispatch(Debugger db, Command cmd: Rewind()) = rewind(db);
