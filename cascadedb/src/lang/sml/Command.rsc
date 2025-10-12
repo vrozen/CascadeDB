@@ -18,14 +18,19 @@ data Command
   | MachRemoveState     (UUID m, UUID s, loc src = |unknown:///|, loc tgt = |cwd://cascadedb/models/TinyLiveSML/Mach.cml|(2810,378,<72,4>,<86,5>))
   | MachAddMachInst     (UUID m, UUID mi, loc src = |unknown:///|, loc tgt = |cwd://cascadedb/models/TinyLiveSML/Mach.cml|(3204,87,<88,4>,<91,4>))
   | MachRemoveMachInst  (UUID m, UUID mi, loc src = |unknown:///|, loc tgt =  |cwd://cascadedb/models/TinyLiveSML/Mach.cml|(3291,99,<91,4>,<94,2>))
+  | MachSetName         (UUID m, str name,  loc src = |unknown:///|, loc tgt = |unknown:///|) //was missing!
   | StateCreate         (UUID s, str name, UUID m, loc src = |unknown:///|, loc tgt = |cwd://cascadedb/models/TinyLiveSML/State.cml|(1963,217,<38,4>,<44,33>))
   | StateDelete         (UUID s, str name, UUID m, loc src = |unknown:///|, loc tgt = |cwd://cascadedb/models/TinyLiveSML/State.cml|(2190,432,<46,4>,<62,4>))
   | StateAddIn          (UUID s, UUID t, loc src = |unknown:///|, loc tgt = |cwd://cascadedb/models/TinyLiveSML/State.cml|(2622,73,<62,4>,<65,4>))
   | StateRemoveIn       (UUID s, UUID t, loc src = |unknown:///|, loc tgt = |cwd://cascadedb/models/TinyLiveSML/State.cml|(2695,93,<65,4>,<69,4>))
   | StateAddOut         (UUID s, UUID t, loc src = |unknown:///|, loc tgt = |cwd://cascadedb/models/TinyLiveSML/State.cml|(2788,79,<69,4>,<72,4>))
   | StateRemoveOut      (UUID s, UUID t, loc src = |unknown:///|, loc tgt = |cwd://cascadedb/models/TinyLiveSML/State.cml|(2867,87,<72,4>,<75,2>))
-  | TransCreate         (UUID t, UUID source, str event, UUID target, loc src = |unknown:///|, loc tgt = |cwd://cascadedb/models/TinyLiveSML/Trans.cml|(1961,256,<38,4>,<47,5>))
-  | TransDelete         (UUID t, UUID source, str event, UUID target, loc src = |unknown:///|, loc tgt = |cwd://cascadedb/models/TinyLiveSML/Trans.cml|(2227,291,<49,4>,<59,2>))
+  | StateSetName        (UUID m, str name, loc src = |unknown:///|, loc tgt = |unknown:///|) //was missing!
+  | TransCreate         (UUID t, UUID source, str evt, UUID target, loc src = |unknown:///|, loc tgt = |cwd://cascadedb/models/TinyLiveSML/Trans.cml|(1961,256,<38,4>,<47,5>))
+  | TransDelete         (UUID t, UUID source, str evt, UUID target, loc src = |unknown:///|, loc tgt = |cwd://cascadedb/models/TinyLiveSML/Trans.cml|(2227,291,<49,4>,<59,2>))  
+  | TransSetSource      (UUID t, UUID source, loc src = |unknown:///|, loc tgt = |unknown:///|) //was missing!
+  | TransSetEvent       (UUID t, str evt, loc src = |unknown:///|, loc tgt = |unknown:///|) //was missing!
+  | TransSetTarget      (UUID t, UUID target, loc src = |unknown:///|, loc tgt = |unknown:///|) //was missing!
   | MachInstCreate      (UUID mi, UUID def, loc src = |unknown:///|, loc tgt = |cwd://cascadedb/models/TinyLiveSML/MachInst.cml|(1939,388,<38,4>,<52,5>))
   | MachInstDelete      (UUID mi, UUID def, loc src = |unknown:///|, loc tgt =|cwd://cascadedb/models/TinyLiveSML/MachInst.cml|(2335,343,<54,4>,<68,4>))
   | MachInstAddStateInst(UUID mi, UUID si, UUID s, loc src = |unknown:///|, loc tgt = |cwd://cascadedb/models/TinyLiveSML/MachInst.cml|(2678,142,<68,4>,<73,4>))
