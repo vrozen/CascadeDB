@@ -33,7 +33,8 @@ realtime actions
 */
 
 data Debugger
-  = debugger(map[str, Language] languages, Heap heap, list[Event] past, list[Event] future, Debugging state);
+  = debugger(map[str, Language] languages, Heap heap, list[Event] past, list[Event] future, Debugging state, 
+      bool visible = false, UUID selected = 0);
 
 data Debugging
   = done()
@@ -58,6 +59,32 @@ data Direction
   | backward()
   ;
 
+public Debugger setVisible(Debugger db, bool visible){
+  db.visible = visible;
+  return db;
+}
+
+public Debugger setSelected(Debugger db, int id){
+  db.selected = id;
+  return db;
+}
+
+public Debugger runUntilPos(Debugger db, int pos) {
+  db = stepOut(db);
+  int cur = size(db.past);
+  if(pos > cur){
+    while(cur < pos){
+      db = stepOver(db);
+      cur = cur + 1;
+    }  
+  } else {
+    while(cur >= pos){
+      db = stepBackOver(db);
+      cur = cur - 1;
+    }
+  }
+  return db;
+}
 
 //Redo a future event, operation by operation.
 public Debugger stepInto(Debugger db) {
@@ -81,9 +108,10 @@ public Debugger stepInto(Debugger db) {
     db.state.prev = cur;
     db.state.next = next(cur, db.state.max);
     db.state.direction = forward();
-  }
-  if(db.state.prev == future()){ 
-    db = endForward(db);
+
+    if(db.state.prev == future()){ 
+      db = endForward(db);
+    }
   }
   return db;
 }
@@ -112,9 +140,10 @@ public Debugger stepBackInto(Debugger db) {
     db.state.prev = prev(db.state.next, db.state.max);
     db.state.next = db.state.prev;
     db.state.direction = backward();
-  }
-  if(db.state.next == past()){ 
-    db = endBackward(db);
+
+    if(db.state.next == past()){ 
+      db = endBackward(db);
+    }
   }
   return db;
 }
@@ -303,8 +332,6 @@ private Debugger beginForward(Debugger db) {
     map[int, Event] evts = getEvents(evt);
     db.future = newFuture;
     db.state = executing(evt, ops, evts, past(), past(), max(evt), forward());
-  } else {
-    throw "Error in redo.";
   }
   return db;
 }
@@ -325,8 +352,6 @@ private Debugger beginBackward(Debugger db) {
     map[int, Event] evts = getEvents(evt);
     db.past = newPast;
     db.state = executing(evt, ops, evts, future(), future(), max(evt), backward());
-  } else {
-    throw "Error in undo.";
   }
   return db;
 }
