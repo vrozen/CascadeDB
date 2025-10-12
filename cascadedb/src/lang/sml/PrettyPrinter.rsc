@@ -22,8 +22,8 @@ private str print(Heap heap, UUID id){
 }
 
 private str print(Heap heap, Object m: Mach()) =
-  "machine <m.name> {<for(UUID state <- heap.space[m.states].l){>
-  '  <print(heap, state)><}>
+  "machine <m.name> {<if(m.states!=0){><for(UUID state <- heap.space[m.states].l){>
+  '  <print(heap, state)><}><}>
   '}";
 
 private str print(Heap heap, Object s: State()) =
@@ -32,20 +32,44 @@ private str print(Heap heap, Object s: State()) =
   '}";
 
 private str print(Heap heap, Object t: Trans()) = 
-  "<t.evt> --\> <heap.space[t.target].name>";
+  "<t.evt> -\> <heap.space[t.target].name>";
 
 private str print(Heap heap, Object mi: MachInst()){
-  Object m = heap.space[mi.def];
-  Object states = heap.space[m.states];
-  Object sis = heap.space[mi.sis];
-  Object cur = heap.space[mi.cur];
-  Object curDef = heap.space[cur.def];
+  str buttons = "";
+  str stateInstances = "";
+  str name = "";
+  if(mi.cur != 0) {
+    Object cur = heap.space[mi.cur];
+    if(cur.def != 0) {
+      Object curDef = heap.space[cur.def];
+      buttons = printButtons(heap, curDef);
+    }
+  }
 
+  if(mi.def != 0) {
+    Object m = heap.space[mi.def];
+    name = m.name;
+    if(m.states != 0) {
+      Object states = heap.space[m.states];
+      if(mi.sis != 0) {
+        Object sis = heap.space[mi.sis];
+        for(UUID s <- states.l){
+          if(s !=0 && s in sis.m){
+            str thisInstance = print(heap, sis.m[s]);
+            if(thisInstance != "" && mi.cur==sis.m[s]){
+              thisInstance = thisInstance + " *";
+            }
+            stateInstances = stateInstances + thisInstance + "\n";
+          }
+        }
+      }
+    }
+  }
   return
-  "machine <m.name>
-  '  <printButtons(heap, curDef)><for(UUID s <- states.l){>
-  '  <print(heap, sis.m[s])><if(mi.cur==sis.m[s]){> *<}><}>
-  ";
+    "machine <name>
+    '  <buttons>
+    '  <stateInstances>
+    ";
 }
 
 private str printButtons(Heap heap, Object s: State()) = //row of "buttons" active in the current state
