@@ -1,0 +1,297 @@
+body {
+  background-color: #202020;
+  color: white; 
+}
+
+.debugger {
+  background-color: #580000;
+  padding: 4px;  
+}
+
+.db-container {
+  display: flex;
+  padding: 4px;
+}
+
+.db-button {
+  /*background-color: gray;*/
+  width: 80px;
+  /*color: white;*/
+  padding: 4px;
+  font-family: Tahoma, Verdana, Segoe, sans-serif;
+  font-weight: bold;  
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin-right: 4px;
+}
+
+.db-toggle {
+  background-color: transparent;
+  width: 40px;
+  /*color: white;*/
+  border: 0px;
+  padding: 5px 5px;
+  font-family: Tahoma, Verdana, Segoe, sans-serif;
+  text-align: center;    
+  font-size: 20px;
+  float: right;
+  margin-left: auto;
+  margin-right: 10px;
+}
+
+.db-slider {
+  width: 80%;
+}
+
+.title {
+  font-family: Tahoma, Verdana, Segoe, sans-serif;
+  font-weight: bold;  
+  text-align: center;    
+  font-size: 24px;
+  flex-grow: 0;
+  flex-shrink: 1;
+  flex-basis: auto;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+/*div {
+  color: #fff;
+  font-family: Tahoma, Verdana, Segoe, sans-serif;
+  padding: 10px;
+}*/
+
+.sml-container {
+  display: flex;
+  padding: 0px;
+}
+
+.sml-editor {
+  width: 320px;
+  justify-content: center;
+  align-items: center;  
+}
+
+.sml-runtime {
+  max-width: 480px;
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.sml-mach {
+  min-width: 300px;
+  background-color:steelblue;  
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  margin-top: 4px;
+}
+
+.sml-state {
+  background-color:skyblue;
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  margin-left: 8px;
+  margin-right: 8px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.sml-trans {
+  background-color:lightcyan;  
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  margin-left: 8px;
+  margin-right: 8px;
+  margin-top: 4px;
+  margin-bottom: 4px;  
+}
+
+.sml-keyword {
+  background-color: transparent;
+  color: black;
+  border: 0px;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  font-family: Tahoma, Verdana, Segoe, sans-serif;
+  font-weight: bold;
+  text-align: left;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin-left: 0px;
+  margin-right: 4px;
+}
+
+.sml-value {
+  background-color: transparent;
+  color: black;
+  border: 0px;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  font-family: Tahoma, Verdana, Segoe, sans-serif;
+  text-align: left;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin-left: 0px;
+  margin-right: 4px;
+}
+
+.sml-input {
+  width: 80px;
+  font-family: Tahoma, Verdana, Segoe, sans-serif, bold;
+  font-size: 16px;
+  margin-left: 0px;
+  margin-right: 4px;
+}
+
+.sml-button {
+  /*background-color: gray;*/
+  min-width: 20px;
+  /*color: white;*/
+  /*padding: 5px 5px;*/
+  font-family: Tahoma, Verdana, Segoe, sans-serif, bold;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+}
+
+.sml-button-right {
+  background-color: transparent;
+  border: 0px;
+  padding: 5px 5px;
+  font-family: Tahoma, Verdana, Segoe, sans-serif, bold;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin-left: auto;
+}
+
+.sml-button-invisible {
+  background-color: transparent;
+  border: 0px;
+  padding: 5px 5px;
+  font-family: Tahoma, Verdana, Segoe, sans-serif, bold;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+}
+
+.sml-button-center {
+  padding: 5px 5px;
+  font-family: Tahoma, Verdana, Segoe, sans-serif, bold;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.sml-machinst {
+  min-width: 200px;
+  background-color: gray;
+  padding-left: 1px;
+  padding-right: 1px;
+  padding-top: 0px;
+  padding-bottom: 1px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  margin-left: 4px;
+  margin-right: 4px;
+}
+
+.sml-keyword-white {
+  background-color: transparent;
+  color: white;
+  border: 0px;
+  padding: 5px 5px;
+  font-family: Tahoma, Verdana, Segoe, sans-serif;
+  font-weight: bold;
+  text-align: left;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin-right: 4px;
+}
+
+.sml-button-right-white {
+  background-color: transparent;
+  color: white;
+  border: 0px;
+  padding: 5px 5px;
+  font-family: Tahoma, Verdana, Segoe, sans-serif, bold;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin-left: auto;
+}
+
+.sml-container-center {
+  display: flex; 
+  align-items: center;
+  justify-content: center;
+  padding: 0px;
+}
+
+.sml-machinst-body-top {
+  background-color: silver;
+  color:black;
+  min-height: 36px;
+  margin: 1px;
+  padding: 4px;
+  justify-content: center;
+  align-items: center;  
+}
+
+.sml-machinst-body-bottom {
+  background-color: white;
+  color:black;
+  min-height: 72px;
+  margin: 1px;
+  padding: 4px;
+  justify-content: center;
+  align-items: center;
+}
+
+.sml-table {
+  border-collapse: separate;
+  border-spacing: 0px;
+  margin-top: 0px;
+  padding-top: 2px;
+  padding-bottom: 0px;
+}
+
+.sml-table-cur {
+  width: 24px;
+}
+
+.sml-table-state {
+  width: 120px;
+}
+
+tr.sml-table-header td {
+  border-bottom: 2px solid black;
+}
