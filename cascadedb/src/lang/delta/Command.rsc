@@ -4,17 +4,20 @@ import lang::delta::Object;
 
 //The REPL dispatches debug commands whose prefix is "db" to the debugger
 //e.g., the command db.StepInto(1) calls Debugger::stepInto(1)
+
 data Command
   //debugger commands
-  = StepInto(UUID db)
-  | StepBackInto(UUID db)
-  | StepOver(UUID db)
-  | StepBackOver(UUID db)
-  | StepOut(UUID db)
-  | StepBackOut(UUID db)
-  | Play(UUID db)
-  | Rewind(UUID db)
-  | Delete(UUID db)
+  = SelectId(UUID id)
+  | SetVisible(bool visible)
+  | StepInto()
+  | StepBackInto()
+  | StepOver()
+  | StepBackOver()
+  | StepOut()
+  | StepBackOut()
+  | Play()
+  | Rewind()
+  | Delete()
   ;
 
   //script commands
