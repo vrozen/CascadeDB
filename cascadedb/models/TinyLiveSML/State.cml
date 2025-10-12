@@ -72,5 +72,9 @@ package sml {
     inverse side-effect RemoveOut(State s, Trans t) {
       s.output.remove(t);
     }
+
+    invertible effect SetName(State s, String name = s.name) {
+      s.name = name;
+    }
   }
 }

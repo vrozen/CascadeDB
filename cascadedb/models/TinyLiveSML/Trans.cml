@@ -56,5 +56,17 @@ package sml {
       State.RemoveOut(source, t);
       State.RemoveIn(target, t);
     }
+
+    invertible effect SetSource(Trans t, State source = t.source) {
+      t.source = source;
+    }
+
+    invertible effect SetTarget(Trans t, State target = t.target) {
+      t.target = target;
+    }
+
+    invertible effect SetEvent(Trans t, String evt = t.evt) {
+      t.evt = evt;
+    }
   }
 }

@@ -91,5 +91,9 @@ package sml {
     inverse side-effect RemoveMachInst(Mach m, MachInst mi) {
       m.instances.remove(mi);
     }
+
+    invertible effect SetName(Mach m, String name = m.name) {
+      m.name = name;
+    }
   }
 }
