@@ -53,6 +53,7 @@ private tuple[Heap, Event] generate(Heap heap, Event evt, Command cmd: MachAddSt
   evt.operations = [
     l_push(mach.states, s, src = |cwd://cascadedb/models/TinyLiveSML/Mach.cml|(2560,15,<61,6>,<61,21>))
   ];
+  evt.typ = t_effect();  
   return <heap, evt>;
 }
 
@@ -85,6 +86,17 @@ private tuple[Heap, Event] generate(Heap heap, Event evt, Command cmd: MachRemov
   evt.operations = [
     s_remove(mach.instances, mi, src = |cwd://cascadedb/models/TinyLiveSML/Mach.cml|(3356,22,<92,6>,<92,28>))
   ];
+  evt.typ = t_effect();
+  return <heap, evt>;
+}
+
+private tuple[Heap, Event] generate(Heap heap, Event evt, Command cmd: MachSetName(UUID m, str name)) {  
+  Object mach = heap.space[m];
+
+  evt.operations = [
+    o_set(m, "name", name, mach.name)
+  ];
+
   evt.typ = t_effect();
   return <heap, evt>;
 }
@@ -159,6 +171,17 @@ private tuple[Heap, Event] generate(Heap heap, Event evt, Command cmd: StateRemo
   return <heap, evt>;
 }
 
+private tuple[Heap, Event] generate(Heap heap, Event evt, Command cmd: StateSetName(UUID s, str name)) {
+  Object state = heap.space[s];
+
+  evt.operations = [
+    o_set(s, "name", name, state.name)
+  ];
+
+  evt.typ = t_effect();
+  return <heap, evt>;
+}
+
 private tuple[Heap, Event] generate(Heap heap, Event evt, Command cmd: TransCreate(UUID t, UUID source, str evt2, UUID target)) {
   heap = claim(heap, t);
   evt.operations = [
@@ -179,6 +202,39 @@ private tuple[Heap, Event] generate(Heap heap, Event evt, Command cmd: TransDele
     o_delete(t, "sml.Trans", src = |cwd://cascadedb/models/TinyLiveSML/Trans.cml|(2413,8,<53,6>,<53,14>))
   ];
   evt.typ = t_effect();  
+  return <heap, evt>;
+}
+
+private tuple[Heap, Event] generate(Heap heap, Event evt, Command cmd: TransSetSource(UUID t, UUID source)) {
+  Object trans = heap.space[t];
+
+  evt.operations = [
+    o_set(t, "source", source, trans.source)
+  ];
+
+  evt.typ = t_effect();
+  return <heap, evt>;
+}
+
+private tuple[Heap, Event] generate(Heap heap, Event evt, Command cmd: TransSetTarget(UUID t, UUID target)) {
+  Object trans = heap.space[t];
+
+  evt.operations = [
+    o_set(t, "target", target, trans.target)
+  ];
+
+  evt.typ = t_effect();
+  return <heap, evt>;
+}
+
+private tuple[Heap, Event] generate(Heap heap, Event evt, Command cmd: TransSetEvent(UUID t, str evt2)) {
+  Object trans = heap.space[t];
+
+  evt.operations = [
+    o_set(t, "evt", evt2, trans.evt)
+  ];
+
+  evt.typ = t_effect();
   return <heap, evt>;
 }
 

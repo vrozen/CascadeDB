@@ -57,14 +57,11 @@ private tuple[Heap, Event] preMigrate(Heap heap, Event evt, Command cmd: StateDe
   Object input = heap.space[state.input];
   list[Command] cmds = [];
   
-  for(UUID t <- output.s) {
+  set[value] trs = output.s + input.s; //note: accounts for reflexive transitions
+
+  for(UUID t <- trs) {
     Object tr = heap.space[t];
     cmds = cmds + [TransDelete(t, tr.source, tr.evt, tr.target, src = |cwd://cascadedb/models/TinyLiveSML/State.cml|(2407,45,<54,8>,<54,53>))];
-  }
-  
-  for(UUID t <- input.s) {
-    Object tr = heap.space[t];
-    cmds = cmds + [TransDelete(t, tr.source, tr.evt, tr.target, src = |cwd://cascadedb/models/TinyLiveSML/State.cml|(2514,45,<57,8>,<57,53>))];
   }
 
   cmds = cmds + [MachRemoveState(m, s, src = |cwd://cascadedb/models/TinyLiveSML/State.cml|(2582,23,<59,6>,<59,29>))];
