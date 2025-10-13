@@ -109,7 +109,8 @@ public Debugger stepInto(Debugger db) {
     db.state.next = next(cur, db.state.max);
     db.state.direction = forward();
 
-    if(db.state.prev == future()){ 
+    //if(db.state.prev == future()){ 
+    if(db.state.next == future()){ 
       db = endForward(db);
     }
   }
@@ -137,11 +138,12 @@ public Debugger stepBackInto(Debugger db) {
       }
     }
     //decrement the program counter
-    db.state.prev = prev(db.state.next, db.state.max);
-    db.state.next = db.state.prev;
+    db.state.prev = prev(cur, db.state.max);
+    db.state.next = cur;
     db.state.direction = backward();
 
-    if(db.state.next == past()){ 
+    //if(db.state.next == past()){ 
+    if(db.state.prev == past()){ 
       db = endBackward(db);
     }
   }
@@ -151,7 +153,8 @@ public Debugger stepBackInto(Debugger db) {
 public Debugger stepOut(Debugger db){
   if(db.state == done()) {
     db = beginForward(db);
-  } else {
+  }
+  if(db.state != done()) {
     Step cur = db.state.next;
     Step out = nextOut(db, cur);
     println("Step out from <cur> to <out>");
@@ -163,7 +166,8 @@ public Debugger stepOut(Debugger db){
 public Debugger stepBackOut(Debugger db){
   if(db.state == done()) {
     db = beginBackward(db);
-  } else {
+  }
+  if(db.state != done()) {  
     Step cur = db.state.prev;
     Step out = prevOut(db, cur);
     println("Step back out from <cur> to <out>");    
@@ -175,7 +179,8 @@ public Debugger stepBackOut(Debugger db){
 public Debugger stepOver(Debugger db){
   if(db.state == done()) {
     db = beginForward(db);
-  } else {
+  }
+  if(db.state != done()) { 
     Step cur = db.state.next;
     Step over = nextOver(db, cur);
     println("Step over from <cur> until <over>");
@@ -186,13 +191,14 @@ public Debugger stepOver(Debugger db){
 
 public Debugger stepBackOver(Debugger db){
   if(db.state == done()) {
-    db = beginBackward(db);
-  } else {
+    db = beginBackward(db);    
+  }
+  if(db.state != done()) {
     Step cur = db.state.prev;
     Step out = prevOver(db, cur);
     println("Step back over from <cur> until <out>");
     db = stepBackUntil(db, out);
-  } 
+  }
   return db;
 }
 
@@ -200,12 +206,7 @@ public Debugger play(Debugger db) {
   do {
     println("Playing: past=<size(db.past)> future=<size(db.future)>");
     db = stepOut(db);
-  } while(db.future != []);
-
-  if(db.state != done()) {
-    println("Complete Playing: past=<size(db.past)> future=<size(db.future)>");
-    db = stepOut(db);
-  }
+  } while(db.future != [] || db.state != done());
 
   return db;
 }
@@ -214,17 +215,12 @@ public Debugger rewind(Debugger db) {
   do {
     println("Rewinding: past=<size(db.past)> future=<size(db.future)>");
     db = stepBackOut(db);
-  } while(db.past != []);
-
-  if(db.state != done()) {
-    println("Complete Rewinding: past=<size(db.past)> future=<size(db.future)>");
-    db = stepBackOut(db);
-  }
+  } while(db.past != [] || db.state != done());
   
   return db;
 }
 
-private Debugger stepUntil(Debugger db, Step step) {
+public Debugger stepUntil(Debugger db, Step step) {
   println("Step until <step>");  
   while(db.state != done() && db.state.prev != step) {
     db = stepInto(db);
@@ -232,7 +228,7 @@ private Debugger stepUntil(Debugger db, Step step) {
   return db;
 }
 
-private Debugger stepBackUntil(Debugger db, Step step) {
+public Debugger stepBackUntil(Debugger db, Step step) {
   println("Step back until <step>");
   while(db.state != done() && db.state.next != step) {
     db = stepBackInto(db);
