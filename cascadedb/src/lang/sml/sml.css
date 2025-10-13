@@ -3,9 +3,19 @@ body {
   color: white; 
 }
 
-.debugger {
-  background-color: #580000;
-  padding: 4px;  
+.db-window {
+  background-color: transparent;
+  padding: 4px; 
+}
+
+.db-navigator {
+  padding: 4px;
+  min-height: 160px;
+  max-height: 160px;
+  min-width: 640px;
+  max-width: 640px;
+  overflow-y: scroll;
+  scroll-behavior: smooth;  
 }
 
 .db-container {
@@ -13,18 +23,95 @@ body {
   padding: 4px;
 }
 
+.db-event {
+  background-color:white;
+  padding: 0px;
+  padding-left: 16px;
+}
+
+.db-event-op {
+  background-color: transparent;
+  margin-left: 16px;
+  padding: 0px;
+}
+
+.db-cursor {
+  background-color:goldenrod;
+}
+
+.db-highlight {
+  background-color:lightgreen;
+}
+
+.db-keyword {
+  background-color: transparent;
+  color: black;
+  border: 0px;
+  padding-left: 0px;
+  padding-right: 0px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  font-family: Tahoma, Verdana, Segoe, sans-serif;
+  font-weight: bold;
+  text-align: left;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin-left: 0px;
+  margin-right: 4px;
+}
+
+.db-value {
+  background-color: transparent;
+  color: black;
+  border: 0px;
+  padding-left: 0px;
+  padding-right: 0px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  font-family: Tahoma, Verdana, Segoe, sans-serif;
+  font-weight: bold;
+  text-align: left;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin-left: 0px;
+  margin-right: 4px;
+}
+
 .db-button {
   /*background-color: gray;*/
-  width: 80px;
-  /*color: white;*/
+  width: 64px;
   padding: 4px;
   font-family: Tahoma, Verdana, Segoe, sans-serif;
   font-weight: bold;  
   text-align: center;
   text-decoration: none;
   display: inline-block;
-  font-size: 16px;
-  margin-right: 4px;
+  font-size: 14px;
+  margin-right: 8px;
+}
+
+a.db-button-fake hover {
+  background-color: gray;
+}
+
+a.db-button-fake {
+  border: 1px outset gray;
+  border-radius: 3px;
+  color: black;
+  background-color: #f0f0f0;
+  vertical-align: middle;  
+
+  width: 64px;
+  padding-top: 8px; 
+  font-family: Tahoma, Verdana, Segoe, sans-serif;
+  font-weight: bold;  
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin-right: 8px;
 }
 
 .db-toggle {
@@ -32,20 +119,46 @@ body {
   width: 40px;
   /*color: white;*/
   border: 0px;
-  padding: 5px 5px;
+  padding: 4px;
   font-family: Tahoma, Verdana, Segoe, sans-serif;
   text-align: center;    
   font-size: 20px;
   float: right;
   margin-left: auto;
-  margin-right: 10px;
+  margin-right: 16px;
 }
 
 .db-slider {
-  width: 80%;
+  width: 640px;
+  -webkit-appearance: none;
+  height: 12px;
+  border-radius: 5px;  
+  background: #f0f0f0;
+  /*outline: none;*/
+  /*opacity: 0.7;*/
+  /*-webkit-transition: .2s;*/
+  /*transition: opacity .2s;*/
 }
 
-.title {
+.db-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%; 
+  background: goldenrod;
+  cursor: pointer;
+}
+
+.db-slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: goldenrod;
+  cursor: pointer;
+}
+
+.sml-title {
   font-family: Tahoma, Verdana, Segoe, sans-serif;
   font-weight: bold;  
   text-align: center;    
@@ -56,12 +169,6 @@ body {
   padding-top: 4px;
   padding-bottom: 4px;
 }
-
-/*div {
-  color: #fff;
-  font-family: Tahoma, Verdana, Segoe, sans-serif;
-  padding: 10px;
-}*/
 
 .sml-container {
   display: flex;
@@ -116,6 +223,7 @@ body {
 }
 
 .sml-keyword {
+  vertical-align: middle;
   background-color: transparent;
   color: black;
   border: 0px;
@@ -134,6 +242,7 @@ body {
 }
 
 .sml-value {
+  vertical-align: middle; 
   background-color: transparent;
   color: black;
   border: 0px;
@@ -173,6 +282,7 @@ body {
 
 .sml-button-right {
   background-color: transparent;
+  color: black;  
   border: 0px;
   padding: 5px 5px;
   font-family: Tahoma, Verdana, Segoe, sans-serif, bold;
@@ -186,6 +296,7 @@ body {
 
 .sml-button-invisible {
   background-color: transparent;
+  color: black;
   border: 0px;
   padding: 5px 5px;
   font-family: Tahoma, Verdana, Segoe, sans-serif, bold;
@@ -217,8 +328,8 @@ body {
   padding-bottom: 1px;
   margin-top: 4px;
   margin-bottom: 4px;
-  margin-left: 4px;
-  margin-right: 4px;
+  margin-left: 8px;
+  margin-right: 0px;
 }
 
 .sml-keyword-white {
