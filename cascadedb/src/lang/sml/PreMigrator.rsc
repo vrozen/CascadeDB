@@ -1,5 +1,6 @@
 module lang::sml::PreMigrator
 
+import IO;
 import Map;
 import String;
 import ValueIO;
@@ -58,6 +59,9 @@ private tuple[Heap, Event] preMigrate(Heap heap, Event evt, Command cmd: StateDe
   list[Command] cmds = [];
   
   set[value] trs = output.s + input.s; //note: accounts for reflexive transitions
+  println(input.s);
+  println(output.s);
+  println(trs);  
 
   for(UUID t <- trs) {
     Object tr = heap.space[t];
@@ -74,6 +78,19 @@ private tuple[Heap, Event] preMigrate(Heap heap, Event evt, Command cmd: TransDe
   list[Command] cmds = [
     StateRemoveOut(source, t, src = |cwd://cascadedb/models/TinyLiveSML/Trans.cml|(2446,27,<56,6>,<56,33>)),
     StateRemoveIn(target, t, src = |cwd://cascadedb/models/TinyLiveSML/Trans.cml|(2481,26,<57,6>,<57,32>))
+  ];
+
+  evt.pre = getSMLEvents(cmds);
+  return <heap, evt>;
+}
+
+private tuple[Heap, Event] preMigrate(Heap heap, Event evt, Command cmd: TransSetTarget(UUID t, UUID target)) {
+  Object trans = heap.space[t];
+  oldTarget = trans.target;
+
+  list[Command] cmds = [
+    StateRemoveIn(oldTarget, t),
+    StateAddIn(target, t)
   ];
 
   evt.pre = getSMLEvents(cmds);
