@@ -48,43 +48,50 @@ public str prettyPrint(Event evt: event(
   '    <prettyPrint(e)><}><}>";
 
 public str prettyPrint(Operation op: o_new(UUID id, str class)) = 
-  "<op.pc>: [<id>] = new <class>()";
+  "[<id>] = new <class>()";
 
 public str prettyPrint(Operation op: o_delete(UUID id, str class)) = 
-  "<op.pc>: delete [<id>]";
+  "delete [<id>]";
 
 public str prettyPrint(Operation op: o_rekey(UUID id, UUID new_id)) =
-  "<op.pc>: rekey(<id>,<new_id>)";
+  "rekey(<id>,<new_id>)";
 
 public str prettyPrint(Operation op: o_set(UUID id, str field, value new_val, value old_val)) =
-  "<op.pc>: [<id>].<field> = <prettyPrint(new_val)>";  //<prettyPrint(old_val)> -\> 
+  "[<id>].<field> = <prettyPrint(new_val)>";  //<prettyPrint(old_val)> -\> 
 
 public str prettyPrint(Operation op: l_insert(UUID id, int pos, value val)) =
-  "<op.pc>: [<id>].insert(<pos>, <prettyPrint(val)>)";
+  "[<id>].insert(<pos>, <prettyPrint(val)>)";
 
 public str prettyPrint(Operation op: l_remove(UUID id, int pos, value val)) = 
-  "<op.pc>: <prettyPrint(val)> = [<id>].remove(<pos>)";
+  "<prettyPrint(val)> = [<id>].remove(<pos>)";
 
 public str prettyPrint(Operation op: l_push(UUID id, value val)) =
-  "<op.pc>: [<id>].push(<prettyPrint(val)>)";
+  "[<id>].push(<prettyPrint(val)>)";
 
 public str prettyPrint(Operation op: l_pop(UUID id, value val)) =
-  "<op.pc>: <prettyPrint(val)> = [<id>].pop()";
+  "<prettyPrint(val)> = [<id>].pop()";
 
 public str prettyPrint(Operation op: s_add(UUID id, value val)) =
-  "<op.pc>: [<id>].add(<prettyPrint(val)>)";
+  "[<id>].add(<prettyPrint(val)>)";
 
 public str prettyPrint(Operation op: s_remove(UUID id, value val)) = 
-  "<op.pc>: [<id>].remove(<prettyPrint(val)>)";
+  "[<id>].remove(<prettyPrint(val)>)";
 
 public str prettyPrint(Operation op: m_insert(UUID id, value key)) =
-  "<op.pc>: [<id>].insert(<key>)";
+  "[<id>].insert(<key>)";
 
 public str prettyPrint(Operation op: m_remove(UUID id, value key)) =
-  "<op.pc>: [<id>].remove(<key>)";
+  "[<id>].remove(<key>)";
 
 public str prettyPrint(Operation op: m_set(UUID id, value key, value new_val, value old_val)) = 
-  "<op.pc>: [<id>][<key>] = <prettyPrint(new_val)>"; //<prettyPrint(old_val)> -\>
+  "[<id>][<key>] = <prettyPrint(new_val)>"; //<prettyPrint(old_val)> -\>
+
+public str prettyPrint(t_trigger()) = "triger";
+public str prettyPrint(t_effect()) = "effect";
+public str prettyPrint(t_signal()) = "signal";
 
 public str prettyPrint(str s) = "\"<s>\"";
 default str prettyPrint(value v) = "<v>";
+
+
+
