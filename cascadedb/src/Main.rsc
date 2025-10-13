@@ -78,8 +78,6 @@ void getLocsManually(){
 
 int main() {
   lang::cascade::IDE::register();
-  //testRewind();
-  testStepBack();
-  //getLocsManually();
+  lang::sml::Editor::editorWebApp();
   return 0;
 }
