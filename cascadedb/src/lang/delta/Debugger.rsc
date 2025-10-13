@@ -70,13 +70,15 @@ public Debugger setSelected(Debugger db, int id){
 }
 
 public Debugger runUntilPos(Debugger db, int pos) {
-  db = stepOut(db);
+  if(db.state != done()){
+    db = stepUntil(db, future());
+  }
   int cur = size(db.past);
   if(pos > cur){
     while(cur < pos){
       db = stepOver(db);
       cur = cur + 1;
-    }  
+    }
   } else {
     while(cur >= pos){
       db = stepBackOver(db);
