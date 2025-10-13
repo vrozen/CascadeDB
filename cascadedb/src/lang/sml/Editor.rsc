@@ -56,8 +56,11 @@ data Msg
   | stepBackOver()
   | stepBackOut()
   | toggle()
-  | runTo(str pos)
-  | goto(loc src)
+  | timeTravel(str s_pos)
+  | timeTravel(int pos)
+  | timeTravelInto(str s_pc)
+  | timeTravelInto(int pc)
+  | editSource(loc src)
   | selectId(int id)
   | machSetName(str name)
   | stateSetName(str name)
@@ -76,9 +79,12 @@ Model update(Msg msg: stepBack(), Model m) = stepBackInto(m);
 Model update(Msg msg: stepBackOver(), Model m) = stepBackOver(m);
 Model update(Msg msg: stepBackOut(), Model m) = stepBackOut(m);
 Model update(Msg msg: toggle(), Model m) = setVisible(m, !m.visible);
-Model update(Msg msg: runTo(str pos), Model m) = runUntilPos(m, toInt(pos));
+Model update(Msg msg: timeTravel(str s_pos), Model m) = update(timeTravel(toInt(s_pos)), m);
+Model update(Msg msg: timeTravel(int pos), Model m) = runUntilPos(m, pos);
+Model update(Msg msg: timeTravelInto(str s_pc), Model m) = update(timeTravelInto(toInt(s_pc)), m);
+Model update(Msg msg: timeTravelInto(int pc), Model m) = m; //not yet handled
 Model update(Msg msg: selectId(int id), Model m) = setSelected(m, id);
-Model update(Msg msg: goto(loc src), Model m){ edit(src); return m;}
+Model update(Msg msg: editSource(loc src), Model m){ edit(src); return m;}
 
 Model update(Msg msg: transSetTarget(str name), Model m){
   UUID target = 0;
@@ -145,7 +151,7 @@ void renderDebugger(Debugger db) {
       int future = size(db.future);
       int maximum = past + future;
       if(db.state != done()){ maximum = maximum + 1; }
-      input(\class("db-slider"), \type("range"), \min("0"), \max("<maximum>"), \value("<past>"), onInput(runTo));
+      input(\class("db-slider"), \type("range"), \min("0"), \max("<maximum>"), \value("<past>"), onInput(timeTravel));
     });
     renderNavigator(db);
   });
@@ -155,32 +161,42 @@ void renderDebugger(Debugger db) {
 //renders the history, interactively
 public void renderNavigator(Debugger db) {
   div(\class("db-navigator"), (){    
+    int pos = 0;
     for(Event evt <- db.past){
-      renderEventCollapsed(db, evt);
+      renderEventCollapsed(db, evt, pos);
+      pos = pos + 1;
     }
     if(db.state != done()){
       renderEventFull(db, db.state.evt);
+      pos = pos + 1;
     } else {
       div(\class("db-event db-cursor"), (){
         div(\id("now"), \class("db-keyword"), "now");
       });
     }
     for(Event evt <- db.future){
-      renderEventCollapsed(db, evt);
+      renderEventCollapsed(db, evt, pos);
+      pos = pos + 1;
     }
   });
 }
 
-public void renderEventCollapsed(Debugger db, Event evt){
+public void renderEventCollapsed(Debugger db, Event evt, int pos){
   div(\class("db-event"), (){
     Command cmd = readTextValueString(#Command, evt.command.name);
     cmd = unset(cmd, {"src", "tgt"});
     if(cmd[0] == db.selected){
-      div(\class("db-highlight"), (){        
-        div(\class("db-keyword"), "<evt.language.name>.<cmd>");
+      div(\class("db-container db-highlight"), (){        
+        button(\class("db-keyword"), onClick(timeTravel(pos)), "<evt.language.name>.<cmd>");
+        button(\class("db-button-right"), onClick(editSource(evt.command.src)), "↑");
+        button(\class("db-button-invisible"), onClick(editSource(evt.def.src)), "↓");
       });
     } else {
-      button(\class("db-keyword"), onClick(goto(evt.command.src)), "<evt.language.name>.<cmd>");
+      div(\class("db-container"), (){
+        button(\class("db-keyword"), onClick(timeTravel(pos)), "<evt.language.name>.<cmd>");
+        button(\class("db-button-right"), onClick(editSource(evt.command.src)), "↑");
+        button(\class("db-button-invisible"), onClick(editSource(evt.def.src)), "↓");
+      });
     }
   });
 }
@@ -193,16 +209,24 @@ public void renderEventFull(Debugger db, Event evt){
    
     if(cursor(pc) := db.state.next && db.state.direction == forward() || 
        cursor(pc) := db.state.prev && db.state.direction == backward()) {
-      div(\class("db-cursor"), (){      
-        button(\class("db-keyword"), onClick(goto(evt.command.src)), "<evt.language.name>.<cmd>");
+      div(\id("now"), \class("db-container db-cursor"), (){      
+        button(\class("db-keyword"), onClick(timeTravelInto(evt.pc)), "<evt.language.name>.<cmd>");
+        button(\class("db-button-right"), onClick(editSource(evt.command.src)), "↑");
+        button(\class("db-button-invisible"), onClick(editSource(evt.def.src)), "↓");
       });
     }
     else if(cmd[0] == db.selected){
-      div(\class("db-highlight"), (){        
-        div(\class("db-keyword"), "<evt.language.name>.<cmd>");
+      div(\class("db-container db-highlight"), (){
+        button(\class("db-keyword"), onClick(timeTravelInto(evt.pc)), "<evt.language.name>.<cmd>");
+        button(\class("db-button-right"), onClick(editSource(evt.command.src)), "↑");
+        button(\class("db-button-invisible"), onClick(editSource(evt.def.src)), "↓");
       });
     } else {
-      button(\class("db-keyword"), onClick(goto(evt.command.src)), "<evt.language.name>.<cmd>");
+      div(\class("db-container"), (){
+        button(\class("db-keyword"), onClick(timeTravelInto(evt.pc)), "<evt.language.name>.<cmd>");
+        button(\class("db-button-right"), onClick(editSource(evt.command.src)), "↑");
+        button(\class("db-button-invisible"), onClick(editSource(evt.def.src)), "↓");
+      });
     }
 
     if(evt.pre != []) {
@@ -216,17 +240,20 @@ public void renderEventFull(Debugger db, Event evt){
       int pc = op.pc;
       if(cursor(pc) := db.state.next && db.state.direction == forward() || 
          cursor(pc) := db.state.prev && db.state.direction == backward()) {
-        div(\class("db-event-op db-cursor"), (){
-          button(\id("now"), \class("db-value"), onClick(goto(op.src)), prettyPrint(op));
+        div(\id("now"), \class("db-container db-cursor db-event-op"), (){
+          button(\class("db-value"), onClick(timeTravelInto(op.pc)), prettyPrint(op));
+          button(\class("db-button-right"), onClick(editSource(op.src)), "↔");          
         });
       } else {
         if(op[0] == db.selected){
-          div(\class("db-event-op db-highlight"), (){
-            button(\id("now"), \class("db-value"), onClick(goto(op.src)), prettyPrint(op));
+          div(\class("db-container db-highlight db-event-op"), (){
+            button(\class("db-value"), onClick(timeTravelInto(op.pc)), prettyPrint(op));
+            button(\class("db-button-right"), onClick(editSource(op.src)), "↔");
           });
         } else {
-          div(\class("db-event-op"), (){
-            button(\id("now"), \class("db-value"), onClick(goto(op.src)), prettyPrint(op));
+          div(\class("db-container db-event-op"), (){
+            button(\class("db-value"), onClick(timeTravelInto(op.pc)), prettyPrint(op));
+            button(\class("db-button-right"), onClick(editSource(op.src)), "↔");
           });
         }
       }
