@@ -329,7 +329,7 @@ private Debugger beginForward(Debugger db) {
     map[int, Operation] ops = getOperations(evt);
     map[int, Event] evts = getEvents(evt);
     db.future = newFuture;
-    db.state = executing(evt, ops, evts, past(), past(), max(evt), forward());
+    db.state = executing(evt, ops, evts, past(), cursor(1), max(evt), forward());
   }
   return db;
 }
@@ -349,7 +349,7 @@ private Debugger beginBackward(Debugger db) {
     map[int, Operation] ops = getOperations(evt);
     map[int, Event] evts = getEvents(evt);
     db.past = newPast;
-    db.state = executing(evt, ops, evts, future(), future(), max(evt), backward());
+    db.state = executing(evt, ops, evts, max(evt), future(), max(evt), backward());
   }
   return db;
 }
