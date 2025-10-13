@@ -3,11 +3,14 @@ module lang::sml::Editor
 import List;
 import String;
 import IO;
+import ValueIO;
+import Node;
 
 import salix::HTML;
 import salix::Core;
 import salix::App;
 import salix::Index;
+import util::IDEServices;
 
 import lang::sml::Language;
 import lang::sml::Object;
@@ -20,6 +23,7 @@ import lang::delta::Language;
 import lang::delta::Object;
 import lang::delta::Engine;
 import lang::delta::Effect;
+import lang::delta::Operation;
 import lang::delta::Debugger;
 
 SalixApp[Debugger] editorApp(str id = "root") 
@@ -53,6 +57,7 @@ data Msg
   | stepBackOut()
   | toggle()
   | runTo(str pos)
+  | goto(loc src)
   | selectId(int id)
   | machSetName(str name)
   | stateSetName(str name)
@@ -73,6 +78,7 @@ Model update(Msg msg: stepBackOut(), Model m) = stepBackOut(m);
 Model update(Msg msg: toggle(), Model m) = setVisible(m, !m.visible);
 Model update(Msg msg: runTo(str pos), Model m) = runUntilPos(m, toInt(pos));
 Model update(Msg msg: selectId(int id), Model m) = setSelected(m, id);
+Model update(Msg msg: goto(loc src), Model m){ edit(src); return m;}
 
 Model update(Msg msg: transSetTarget(str name), Model m){
   UUID target = 0;
@@ -109,32 +115,29 @@ Model update(Msg msg: transSetEvent(str evt), Model m) {
 
 void view(Model m) {
   renderDebugger(m);
-
   renderLiveSML(m);
 
-  str machs = prettyPrintMachines(m.heap);
-  textarea(\cols(39), \rows(10), machs);
-
-  str macInsts = prettyPrintMachineInstances(m.heap);
-  textarea(\cols(39), \rows(10), macInsts);
-
-  str past = prettyPrint(m.past);
-  textarea(\cols(80), \rows(8), past);
+  //str machs = prettyPrintMachines(m.heap);
+  //textarea(\cols(39), \rows(10), machs);
+  //str macInsts = prettyPrintMachineInstances(m.heap);
+  //textarea(\cols(39), \rows(10), macInsts);
+  //str past = prettyPrint(m.past);
+  //textarea(\cols(80), \rows(8), past);
 }
 
 void renderDebugger(Debugger db) {
   if(db.visible == false) return;  
-  div(class("debugger"), () {
+  div(class("db-window"), () {
     div(class("db-container"), () {
       button(\class("db-button"), onClick(rewind()), "rewind");  
       button(\class("db-button"), onClick(stepBackOut()), "\<\<\<");
       button(\class("db-button"), onClick(stepBackOver()), "\<\<");
       button(\class("db-button"), onClick(stepBack()), "\<");
+      a(\class("db-button-fake"), href("#now"), "now");
       button(\class("db-button"), onClick(step()), "\>");
       button(\class("db-button"), onClick(stepOver()), "\>\>");
       button(\class("db-button"), onClick(stepOut()), "\>\>\>");
       button(\class("db-button"), onClick(play()), "play");
-
       button(\class("db-toggle"), onClick(toggle()), "🐞");
     });
     div(class("db-container"), () {
@@ -144,20 +147,107 @@ void renderDebugger(Debugger db) {
       if(db.state != done()){ maximum = maximum + 1; }
       input(\class("db-slider"), \type("range"), \min("0"), \max("<maximum>"), \value("<past>"), onInput(runTo));
     });
+    renderNavigator(db);
+  });
+  hr();  
+}
+
+//renders the history, interactively
+public void renderNavigator(Debugger db) {
+  div(\class("db-navigator"), (){    
+    for(Event evt <- db.past){
+      renderEventCollapsed(db, evt);
+    }
+    if(db.state != done()){
+      renderEventFull(db, db.state.evt);
+    } else {
+      div(\class("db-event db-cursor"), (){
+        div(\id("now"), \class("db-keyword"), "now");
+      });
+    }
+    for(Event evt <- db.future){
+      renderEventCollapsed(db, evt);
+    }
+  });
+}
+
+public void renderEventCollapsed(Debugger db, Event evt){
+  div(\class("db-event"), (){
+    Command cmd = readTextValueString(#Command, evt.command.name);
+    cmd = unset(cmd, {"src", "tgt"});
+    if(cmd[0] == db.selected){
+      div(\class("db-highlight"), (){        
+        div(\class("db-keyword"), "<evt.language.name>.<cmd>");
+      });
+    } else {
+      button(\class("db-keyword"), onClick(goto(evt.command.src)), "<evt.language.name>.<cmd>");
+    }
+  });
+}
+
+public void renderEventFull(Debugger db, Event evt){
+  div(\class("db-event"), (){
+    Command cmd = readTextValueString(#Command, evt.command.name);
+    cmd = unset(cmd, {"src", "tgt"});
+    int pc = evt.pc;
+   
+    if(cursor(pc) := db.state.next && db.state.direction == forward() || 
+       cursor(pc) := db.state.prev && db.state.direction == backward()) {
+      div(\class("db-cursor"), (){      
+        button(\class("db-keyword"), onClick(goto(evt.command.src)), "<evt.language.name>.<cmd>");
+      });
+    }
+    else if(cmd[0] == db.selected){
+      div(\class("db-highlight"), (){        
+        div(\class("db-keyword"), "<evt.language.name>.<cmd>");
+      });
+    } else {
+      button(\class("db-keyword"), onClick(goto(evt.command.src)), "<evt.language.name>.<cmd>");
+    }
+
+    if(evt.pre != []) {
+      div(\class("db-event-pre"), (){
+        for(Event e <- evt.pre) {
+          renderEventFull(db, e);
+        }
+      });
+    }
+    for(Operation op <- evt.operations){
+      int pc = op.pc;
+      if(cursor(pc) := db.state.next && db.state.direction == forward() || 
+         cursor(pc) := db.state.prev && db.state.direction == backward()) {
+        div(\class("db-event-op db-cursor"), (){
+          button(\id("now"), \class("db-value"), onClick(goto(op.src)), prettyPrint(op));
+        });
+      } else {
+        if(op[0] == db.selected){
+          div(\class("db-event-op db-highlight"), (){
+            button(\id("now"), \class("db-value"), onClick(goto(op.src)), prettyPrint(op));
+          });
+        } else {
+          div(\class("db-event-op"), (){
+            button(\id("now"), \class("db-value"), onClick(goto(op.src)), prettyPrint(op));
+          });
+        }
+      }
+    }
+    if(evt.post != []) {    
+      div(\class("db-event-post"), (){
+        for(Event e <- evt.post) {
+          renderEventFull(db, e);
+        }
+      });
+    }
   });
 }
 
 void renderLiveSML(Debugger db){
   div(class("sml-container"), () {
-    div(class("title"), "Live SML");
+    div(class("sml-title"), "Live SML");
     if(db.visible == false){
       button(\class("db-toggle"), onClick(toggle()), "🐞");
     }
   });
-  div(class("sml-container"), () {
-    tuple[UUID id, Heap heap] next = getNextId(db.heap);    
-    button(\class("sml-button"), onClick(run(["sml.MachCreate(<next.id>,\"\")", "db.SelectId(<next.id>)"])), "+");  
-  });  
   div(class("sml-container"), () {
     renderEditor(db);
     renderRuntime(db);
@@ -172,6 +262,12 @@ void renderEditor(Debugger db) {
         renderMach(db, id);
       }
     }
+    div(class("sml-mach"), () {  
+      div(class("sml-container"), () {
+        tuple[UUID id, Heap heap] next = getNextId(db.heap);    
+        button(\class("sml-button"), onClick(run(["sml.MachCreate(<next.id>,\"\")", "db.SelectId(<next.id>)"])), "+");  
+      });
+    });
   });
 }
 
@@ -180,13 +276,16 @@ void renderMach(Debugger db, UUID m) {
   tuple[UUID id, Heap heap] next = getNextId(db.heap);
 
   div(class("sml-mach"), () {
-    div(class("sml-container"), () {
-      button(\class("sml-keyword"), onClick(selectId(m)), "machine");    
+    div(class("sml-container"), () { 
       if(db.selected == m) {
+        button(\class("sml-keyword"), onClick(selectId(m)), "●"); 
+        button(\class("sml-keyword"), onClick(selectId(m)), "machine");    
         input(\class("sml-input"), \type("text"), \value(mach.name), onInput(machSetName));
       } else {
+        button(\class("sml-keyword"), onClick(selectId(m)), "○"); 
+        button(\class("sml-keyword"), onClick(selectId(m)), "machine");    
         input(\class("sml-input"), \type("text"), \value(mach.name), \readonly(true));
-      }
+      }      
       button(\class("sml-button-right"), onClick(execute("sml.MachInstCreate(<next.id>,<m>)")), "⏵");
       button(\class("sml-button-invisible"), onClick(execute("sml.MachDelete(<m>,\"<mach.name>\")")), "×");
     });
@@ -197,8 +296,10 @@ void renderMach(Debugger db, UUID m) {
       }
     }
 
-    div(class("sml-container"), () {
-      button(\class("sml-button"), onClick(run(["sml.StateCreate(<next.id>,\"\",<m>)", "db.SelectId(<next.id>)"])), "+");
+    div(class("sml-state"), () {
+      div(class("sml-container"), () {
+        button(\class("sml-button"), onClick(run(["sml.StateCreate(<next.id>,\"\",<m>)", "db.SelectId(<next.id>)"])), "+");
+      });
     });
   });
 }
@@ -208,22 +309,29 @@ void renderState(Debugger db, UUID s, UUID m) {
 
   div(class("sml-state"), () {
     div(class("sml-container"), () {
-      button(\class("sml-keyword"), onClick(selectId(s)), "state");    
       if(db.selected == s) {
+        button(\class("sml-keyword"), onClick(selectId(s)), "●"); 
+        button(\class("sml-keyword"), onClick(selectId(s)), "state");    
         input(\class("sml-input"), \type("text"), \value(state.name), onInput(stateSetName));
       } else {
+        button(\class("sml-keyword"), onClick(selectId(s)), "○"); 
+        button(\class("sml-keyword"), onClick(selectId(s)), "state");    
         input(\class("sml-input"), \type("text"), \value(state.name), \readonly(true));
       }
       button(\class("sml-button-right"), onClick(execute("sml.StateDelete(<s>,\"<state.name>\",<m>)")), "×");
     });
+
     if(state.output != 0) {
       for(UUID t <- db.heap.space[state.output].s){
         renderTrans(db, t, m);
       }
-    }  
+    }
+
     tuple[UUID id, Heap heap] next = getNextId(db.heap);
-    div(class("sml-container"), () { 
-      button(\class("sml-button"), onClick(run(["sml.TransCreate(<next.id>,<s>,\"\",<s>)", "db.SelectId(<next.id>)"])), "+");
+    div(class("sml-trans"), () {    
+      div(class("sml-container"), () { 
+        button(\class("sml-button"), onClick(run(["sml.TransCreate(<next.id>,<s>,\"\",<s>)", "db.SelectId(<next.id>)"])), "+");
+      });
     });
   });
 }
@@ -233,9 +341,11 @@ void renderTrans(Debugger db, UUID t, UUID m) {
   div(class("sml-trans"), () {
     div(class("sml-container"), () {
       if(db.selected == t) {
+        button(\class("sml-keyword"), onClick(selectId(t)), "●"); 
         input(\class("sml-input"), \type("text"), \value(trans.evt), onInput(transSetEvent));  
       } else {
-        input(\class("sml-input"), \type("text"), \value(trans.evt), \readonly(true));      
+        button(\class("sml-keyword"), onClick(selectId(t)), "○"); 
+        input(\class("sml-input"), \type("text"), \value(trans.evt), \readonly(true));
       }
 
       str targetName = "";
@@ -284,10 +394,15 @@ void renderRuntime(Debugger db) {
 
 void renderMachInst(Debugger db, UUID mi) {
   Object machInst = db.heap.space[mi];
-  div(class("sml-machinst"), () {
-    if(machInst.def != 0) {
+  if(machInst.def != 0) {
+    div(class("sml-machinst"), () {
       Object mach = db.heap.space[machInst.def];
       div(class("sml-container"), () {
+        if(db.selected == mi) {
+          button(\class("sml-keyword-white"), onClick(selectId(mi)), "●"); 
+        } else {
+          button(\class("sml-keyword-white"), onClick(selectId(mi)), "○"); 
+        }
         button(\class("sml-keyword-white"), onClick(selectId(mi)), "machine <mach.name>");
         button(\class("sml-button-right-white"), onClick(execute("sml.MachInstDelete(<mi>,<machInst.def>)")), "×");
       });
@@ -297,8 +412,8 @@ void renderMachInst(Debugger db, UUID mi) {
       div(class("sml-machinst-body-bottom"), () {
         renderStateInstances(db, machInst.cur, mi);        
       });
-    }
-  });
+    });
+  };
 }
 
 public void renderTriggerButtons(Debugger db, UUID cur, UUID mi) {
@@ -306,6 +421,7 @@ public void renderTriggerButtons(Debugger db, UUID cur, UUID mi) {
   Object curSi = db.heap.space[cur];
   if(curSi.def == 0) return;
   Object state = db.heap.space[curSi.def];
+  if(state.output == 0) return;
   Object output = db.heap.space[state.output];
   div(class("sml-container-center"), () {   
     for(UUID t <- output.s) {
@@ -325,13 +441,13 @@ public void renderStateInstances(Debugger db, UUID curSi, UUID mi) {
     table(\class("sml-table"), () {
       tbody(() {
         tr(\class("sml-table-header"), () {
-          td(\class("sml-table-cur"));
           td(\class("sml-table-state"), () {
             div(\class("sml-keyword"), "state");
           });
           td((){
             div(\class("sml-keyword"), "#");
           });
+          td(\class("sml-table-cur"));
         });
         if(mach.states != 0 && machInst.sis != 0) {
           Object states = db.heap.space[mach.states];
@@ -339,19 +455,26 @@ public void renderStateInstances(Debugger db, UUID curSi, UUID mi) {
           for(UUID s <- states.l) {
             if(s != 0 && s in stateInstances.m) {
               value si = stateInstances.m[s];
-              Object stateInst = db.heap.space[si];
-              Object state = db.heap.space[stateInst.def];
-              tr(() {
-                td((){
-                  div(\class("sml-keyword"), "<if(si==curSi){>*<}>");
-                });              
-                td((){
-                  button(\class("sml-value"), onClick(selectId(si)), state.name);
+              Object state = db.heap.space[s];
+              if(si != 0){
+                Object stateInst = db.heap.space[si];
+                tr(() {            
+                  td((){
+                    if(db.selected == si) {
+                      button(\class("sml-keyword"), onClick(selectId(si)), "●"); 
+                    } else {
+                      button(\class("sml-keyword"), onClick(selectId(si)), "○"); 
+                    }
+                    button(\class("sml-value"), onClick(selectId(si)), state.name);
+                  });
+                  td((){
+                    div(\class("sml-value"), "<stateInst.count>");
+                  });
+                  td((){
+                    div(\class("sml-keyword"), "<if(si==curSi){>*<}>");
+                  });
                 });
-                td((){
-                  div(\class("sml-value"), "<stateInst.count>");
-                });
-              });
+              }
             }
           }
         }
