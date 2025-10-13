@@ -14,18 +14,6 @@ import lang::delta::Engine;
 public Debugger DB_CTX = 
   debugger((), heap(cur_id=0, space=()), [], [], done());
 
-public void REPL_schedule(str command) {
-  schedule(DB_CTX, command);
-}
-
-public void REPL_run(str script){
-  run(DB_CTX, script);
-}
-
-public void REPL_register(Language lang){
-  register(DB_CTX, lang);
-}
-
 public Debugger register(Debugger db, Language lang) {
   db.languages[lang.name] = lang;
   return db;
@@ -48,7 +36,7 @@ public Debugger schedule(Debugger db, str command) {
     db = dispatch(db, c);
   } else {
     if(db.state != done()){
-      db = stepOut(db);
+      db = stepUntil(db, future());
     }
     tuple[Heap heap, Event evt] result = schedule(db.languages, db.heap, command);
     db.heap = result.heap;
