@@ -69,18 +69,42 @@ public Debugger setSelected(Debugger db, int id){
   return db;
 }
 
-public Debugger runUntilPos(Debugger db, int pos) {
-  if(db.state != done()){
+//time travel within a current event
+public Debugger db_timeTravelInto(Debugger db, int pc) {
+  if(db.state != done() && pc > 0 && pc <= db.state.max.pc) {
+    println("time travel into");
+    println("prev: <db.state.prev> next: <db.state.next> direction: <db.state.direction>");
+    if(past() := db.state.next) {
+      db = stepUntil(db, cursor(pc-1));
+    } else if(future() := db.state.next) {
+      db = stepBackUntil(db, cursor(pc+1));      
+    } else if(cursor(int cur_pc) := db.state.next) {
+      if(pc >= cur_pc) {
+        println("target <pc> \> cur <cur_pc>");
+        db = stepUntil(db, cursor(pc-1));
+      } else if(pc < cur_pc) {
+        println("target <pc> \<= cur <cur_pc>");
+        db = stepBackUntil(db, cursor(pc+1));
+      }
+    }
+  }
+  return db;
+}
+
+//time travel within history
+public Debugger db_timeTravel(Debugger db, int pos) {
+  println("time travel <pos>");  
+  if(db.state != done()) {
     db = stepUntil(db, future());
   }
   int cur = size(db.past);
-  if(pos > cur){
-    while(cur < pos){
+  if(pos > cur){ 
+    while(cur < pos) {
       db = stepOver(db);
       cur = cur + 1;
     }
   } else {
-    while(cur >= pos){
+    while(cur >= pos) {
       db = stepBackOver(db);
       cur = cur - 1;
     }
@@ -92,7 +116,8 @@ public Debugger runUntilPos(Debugger db, int pos) {
 public Debugger stepInto(Debugger db) {
   if(db.state == done()) {
     db = beginForward(db);
-  } else {
+  }
+  if(db.state != done()) {
     Step cur = db.state.next;
     //we are in a partial execution
     //if next is an operation, execute the operation
@@ -124,7 +149,8 @@ public Debugger stepBackInto(Debugger db) {
   //if done, begin a new partial execution by adding the next future event
   if(db.state == done()) {
     db = beginBackward(db);
-  } else {
+  }
+  if(db.state != done()) {
     Step cur = db.state.prev;
     //we are in a partial execution
     //if prev is an operation, execute the operation
@@ -227,6 +253,9 @@ public Debugger stepUntil(Debugger db, Step step) {
   while(db.state != done() && db.state.prev != step) {
     db = stepInto(db);
   }
+  if(db.state != done()){
+    db.state.direction = forward();
+  }
   return db;
 }
 
@@ -234,6 +263,9 @@ public Debugger stepBackUntil(Debugger db, Step step) {
   println("Step back until <step>");
   while(db.state != done() && db.state.next != step) {
     db = stepBackInto(db);
+  }
+  if(db.state != done()){
+    db.state.direction = backward();
   }
   return db;
 }
@@ -329,7 +361,7 @@ private Debugger beginForward(Debugger db) {
     map[int, Operation] ops = getOperations(evt);
     map[int, Event] evts = getEvents(evt);
     db.future = newFuture;
-    db.state = executing(evt, ops, evts, past(), cursor(1), max(evt), forward());
+    db.state = executing(evt, ops, evts, past(), past(), max(evt), forward());
   }
   return db;
 }
@@ -349,7 +381,7 @@ private Debugger beginBackward(Debugger db) {
     map[int, Operation] ops = getOperations(evt);
     map[int, Event] evts = getEvents(evt);
     db.past = newPast;
-    db.state = executing(evt, ops, evts, max(evt), future(), max(evt), backward());
+    db.state = executing(evt, ops, evts, future(), future(), max(evt), backward());
   }
   return db;
 }
