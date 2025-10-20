@@ -3,6 +3,7 @@ module Main
 import lang::sml::Language;
 import lang::sml::Object;
 import lang::sml::PrettyPrinter;
+import lang::sml::Editor;
 
 import lang::cascade::IDE;
 import lang::cascade::AST;
